@@ -1,0 +1,10 @@
+.. role:: linkrole(raw)
+   :format: html
+.. |rr_gaboptdual_var| replace:: :linkrole:`<a href="/Users/nati/work/publish/unlocbox-rr/unlocbox-rr-html/gdwuco/rr_gaboptdual_var.html">rr_gaboptdual_var</a>`
+.. |rr_gaboptdual| replace:: :linkrole:`<a href="/Users/nati/work/publish/unlocbox-rr/unlocbox-rr-html/gdwuco/rr_gaboptdual.html">rr_gaboptdual</a>`
+.. |rr_gabfirtight| replace:: :linkrole:`<a href="/Users/nati/work/publish/unlocbox-rr/unlocbox-rr-html/gdwuco/rr_gabfirtight.html">rr_gabfirtight</a>`
+.. |rr_image_source_separation| replace:: :linkrole:`<a href="/Users/nati/work/publish/unlocbox-rr/unlocbox-rr-html/image_source_separation/rr_image_source_separation.html">rr_image_source_separation</a>`
+.. |rr_gabfirdual| replace:: :linkrole:`<a href="/Users/nati/work/publish/unlocbox-rr/unlocbox-rr-html/gdwuco/rr_gabfirdual.html">rr_gabfirdual</a>`
+.. |rr_lrtv_hsi| replace:: :linkrole:`<a href="/Users/nati/work/publish/unlocbox-rr/unlocbox-rr-html/lrtv_hsi/rr_lrtv_hsi.html">rr_lrtv_hsi</a>`
+.. |rr_image_source_separation_big_dataset| replace:: :linkrole:`<a href="/Users/nati/work/publish/unlocbox-rr/unlocbox-rr-html/image_source_separation/rr_image_source_separation_big_dataset.html">rr_image_source_separation_big_dataset</a>`
+.. |rr_beat_itersine| replace:: :linkrole:`<a href="/Users/nati/work/publish/unlocbox-rr/unlocbox-rr-html/gdwuco/rr_beat_itersine.html">rr_beat_itersine</a>`

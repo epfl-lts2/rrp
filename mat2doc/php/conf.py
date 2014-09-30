@@ -1,0 +1,6 @@
+fext='.php'
+urlbase='/rr'
+urlext='.php'
+widthstr=''
+imagetype='png'
+includedir='include'

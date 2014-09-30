@@ -1,0 +1,21 @@
+.. role:: linkrole(raw)
+   :format: latex
+.. |rr_lrtv_hsi| replace:: :linkrole:`\nameref{rr_lrtv_hsi}`
+.. |rr_gabfirtight| replace:: :linkrole:`\nameref{rr_gabfirtight}`
+.. |rr_beat_itersine| replace:: :linkrole:`\nameref{rr_beat_itersine}`
+.. |rr_gaboptdual_smoothness| replace:: :linkrole:`\nameref{rr_gaboptdual_smoothness}`
+.. |rr_superresolution_for_spectrometry| replace:: :linkrole:`\nameref{rr_superresolution_for_spectrometry}`
+.. |rr_gabfirdual_smoothness| replace:: :linkrole:`\nameref{rr_gabfirdual_smoothness}`
+.. |rr_gaboptdual| replace:: :linkrole:`\nameref{rr_gaboptdual}`
+.. |rr_signals| replace:: :linkrole:`\nameref{rr_signals}`
+.. |rr_gaboptdual2| replace:: :linkrole:`\nameref{rr_gaboptdual2}`
+.. |rr_gaboptdual3| replace:: :linkrole:`\nameref{rr_gaboptdual3}`
+.. |rr_spectro_mult| replace:: :linkrole:`\nameref{rr_spectro_mult}`
+.. |rr_calmix| replace:: :linkrole:`\nameref{rr_calmix}`
+.. |rr_gabfirdual| replace:: :linkrole:`\nameref{rr_gabfirdual}`
+.. |rr_image_source_separation| replace:: :linkrole:`\nameref{rr_image_source_separation}`
+.. |rr_tradeoff_smoothness| replace:: :linkrole:`\nameref{rr_tradeoff_smoothness}`
+.. |rr_image_source_separation_big_dataset| replace:: :linkrole:`\nameref{rr_image_source_separation_big_dataset}`
+.. |rr_gabfirdual_smoothness3| replace:: :linkrole:`\nameref{rr_gabfirdual_smoothness3}`
+.. |rr_gabfirdual_smoothness2| replace:: :linkrole:`\nameref{rr_gabfirdual_smoothness2}`
+.. |rr_alpha| replace:: :linkrole:`\nameref{rr_alpha}`
