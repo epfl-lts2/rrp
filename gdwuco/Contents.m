@@ -9,16 +9,16 @@
 %
 %   ARI -- January 2014
 %
-%   Article: http://unlocbox.sourceforge.net/notes/unlocbox-note-006.pdf
+%   Article: https://lts2research.epfl.ch/unlocbox/notes/unlocbox-note-006.pdf
 %
 %   Cite this paper
-%   http://unlocbox.sourceforge.net/notes/unlocbox-note-006.bib
+%   https://lts2research.epfl.ch/unlocbox/notes/unlocbox-note-006.bib
 %
 %   Conference paper 
-%   http://unlocbox.sourceforge.net/notes/unlocbox-note-009.pdf
+%   https://lts2research.epfl.ch/unlocbox/notes/unlocbox-note-009.pdf
 %
 %   Cite this paper
-%   http://unlocbox.sourceforge.net/notes/unlocbox-note-009.bib
+%   https://lts2research.epfl.ch/unlocbox/notes/unlocbox-note-009.bib
 %
 %   Abstract
 %   --------
@@ -41,7 +41,7 @@
 %   documented. 
 %
 %   You can also want the convergence of the algorithm at
-%   http://unlocbox.sourceforge.net/rr/gdwuco/gif.php.
+%   https://lts2research.epfl.ch/rrp/gdwuco/gif.php.
 %
 %  Availlable experiments
 %    RR_GABOPTDUAL - Presentation of different optimization schemes

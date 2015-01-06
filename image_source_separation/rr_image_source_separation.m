@@ -10,14 +10,12 @@
 %   Demonstration matlab file:  Perraudin Nathanael, Mohammad Golbabaee
 %
 %   EPFL -- August 2012
-%
-%   http://infoscience.epfl.ch/record/180911/files/RRarchive_2.zip
 %   
 %   Dependencies
 %   ------------
 %
 %   In order to use this matlab file you need the UNLocXbox toolbox. You
-%   can download it on http://unlocbox.sourceforge.net
+%   can download it on https://lts2research.epfl.ch/unlocbox/
 %   
 %   The problem
 %   -----------

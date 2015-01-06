@@ -18,10 +18,10 @@
 %   error than the traditional GLA.
 %
 %   Conference paper:
-%   http://unlocbox.sourceforge.net/notes/unlocbox-note-007.pdf
+%   https://lts2research.epfl.ch/unlocbox/notes/unlocbox-note-007.pdf
 %
 %   Cite this paper
-%   http://unlocbox.sourceforge.net/notes/unlocbox-note-007.bib
+%   https://lts2research.epfl.ch/unlocbox/notes/unlocbox-note-007.bib
 %
 %  Availlable experiments
 %    RR_ALPHA - Test the influence of the parameter alpha

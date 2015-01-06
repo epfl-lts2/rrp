@@ -88,24 +88,29 @@ if 'phpall' in todo:
 
 
 
-#  Publish
-if 'mat' in todo:
-    s=mat2docpath+'/mat2doc.py '+project+' mat'
-    os.system(s)
+# #  Publish
+# if 'mat' in todo:
+#     s=mat2docpath+'/mat2doc.py '+project+' mat'
+#     os.system(s)
 
     
-if 'php' in todo:
-    s=mat2docpath+'/mat2doc.py '+plot+build+' '+project+' php'
-    os.system(s)
+# if 'php' in todo:
+#     s=mat2docpath+'/mat2doc.py '+plot+build+' '+project+' php'
+#     os.system(s)
 
 
-if 'html' in todo:
-    s=mat2docpath+'/mat2doc.py '+plot+build+' '+project+' html'
-    os.system(s)
+# if 'html' in todo:
+#     s=mat2docpath+'/mat2doc.py '+plot+build+' '+project+' html'
+#     os.system(s)
 
-if 'tex' in todo:
-    s=mat2docpath+'/mat2doc.py '+plot+build+' '+project+' tex'
-    os.system(s)
+# if 'tex' in todo:
+#     s=mat2docpath+'/mat2doc.py '+plot+build+' '+project+' tex'
+#     os.system(s)
+#  Publish
+for mode in  ['mat', 'php', 'html', 'tex']:
+    if mode in todo:
+        s = '%s %s/mat2doc.py %s%s %s %s' % ('PYTHONPATH="%s:$PYTHONPATH"' % (curdir,), mat2docpath, plot if mode != 'mat' else '', build if mode != 'mat' else '', project, mode,)
+        os.system(s)
 
 # if 'compiletex' in todo: 
         
@@ -224,9 +229,9 @@ if 'sendphp' in todo:
     os.system(s)  
 
 
-if 'sendweb' in todo:
-    s='rsync -av '+outputdirweb+' '+host+':'+www
-    os.system(s)  
+# if 'sendweb' in todo:
+#     s='rsync -av '+outputdirweb+' '+host+':'+www
+#     os.system(s)  
 
 
 
