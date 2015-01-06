@@ -3,25 +3,30 @@
 import sys,os,platform
 import publishfunctions
 
+curdir = os.path.dirname(os.path.realpath(__file__))
 
 # ------- Configuration parameters -------------
-
 projectname='unlocbox-rr'
 
 if platform.system()=='Darwin':
-    homefolder='/Users/nati'
+    homefolder='/Users/user'
 else:
-    homefolder='/home/nati'
+    homefolder='/home/user'
 
-project=homefolder+'/work/svn/toolbox/'+projectname+'/'
+project=homefolder+'/'+projectname+'/'
 
 # Configure HTML placement at remote server
-host='nperraud,unlocbox@web.sourceforge.net'
-www='/home/project-web/unlocbox/htdocs/rr/'
-outputdirweb= '~/work/svn/website/unlocbox-web/rr/'
+host='nati@lts2research.epfl.ch'
+www='/home/nati/'+projectname+'/'
+outputdirweb= '~/work/git/website/rrp-website/'
 
 # -------- Configuration of mat2doc ------------
-mat2docpath='~/work/git/mat2doc'
+mat2docpath='~/mat2doc'
+
+try :
+    from publish_local import *
+except:
+    pass
 
 
 
@@ -39,7 +44,14 @@ versionstring=f.read()[:-1]
 f.close()
 
 # ------- do not edit below this line ----------
-
+f = open(project + 'mat2doc/startup.m', 'w')
+f.write('addpath ' + unlocxpath + '\n')
+f.write('init_unlocbox;\n\n')
+f.write('addpath ' + ltfatpath + '\n')
+f.write('ltfatstart;\n');
+f.write('addpath ' + gsppath + '\n')
+f.write('gsp_start;\n');
+f.close()
 
 
 
