@@ -16,11 +16,11 @@
 %   ------------
 %
 %   In order to use this matlab file you need the UNLocbox toolbox. You
-%   can download it on http://unlocbox.sourceforge.net and the LTFAT
+%   can download it on https://lts2research.epfl.ch/unlocbox and the LTFAT
 %   toolbox. You can download it on http://ltfat.sourceforge.net
 %
 %   You can also want the convergence of the algorithm at
-%   http://unlocbox.sourceforge.net/rr/gdwuco/gif.php.
+%   https://lts2research.epfl.ch/unlocbox/rr/gdwuco/gif.php.
 %
 %   Goal
 %   ----

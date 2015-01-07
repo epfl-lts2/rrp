@@ -15,7 +15,7 @@
 %   ------------
 %
 %   In order to use this matlab file you need the UNLocXbox toolbox. You
-%   can download it on http://unlocbox.sourceforge.net
+%   can download it on https://lts2research.epfl.ch/unlocbox
 %   
 %   CS recovery of Hyperpectral images via joint Trace/TV norm minimization
 %   -----------------------------------------------------------------------

@@ -10,7 +10,7 @@
 %   ------------
 %
 %   In order to use this matlab file you need the UNLocbox toolbox. You
-%   can download it on http://unlocbox.sourceforge.net .
+%   can download it on https://lts2research.epfl.ch/unlocbox .
 %   
 %   The problem
 %   -----------
