@@ -6,7 +6,7 @@ import publishfunctions
 curdir = os.path.dirname(os.path.realpath(__file__))
 
 # ------- Configuration parameters -------------
-projectname='unlocbox-rr'
+projectname='r2p'
 
 if platform.system()=='Darwin':
     homefolder='/Users/user'
@@ -16,8 +16,8 @@ else:
 project=homefolder+'/'+projectname+'/'
 
 # Configure HTML placement at remote server
-host='nati@lts2research.epfl.ch'
-www='/home/nati/'+projectname+'/'
+host='nperraud,r2p@web.sourceforge.net'
+www='/home/project-web/r2p/htdocs/'
 outputdirweb= '~/work/git/website/rrp-website/'
 
 # -------- Configuration of mat2doc ------------
