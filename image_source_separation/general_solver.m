@@ -160,7 +160,7 @@ function [ S_est, Img_est ] = general_solver( decorr,sampling_mecanism,method,SN
     k=1/3;
     
     f3.prox = @(x,T) reshape(prox_tv(reshape(x,n1,[]),k*T,param_TV),N*I,1);    
-    f3.eval = @(x) tv_norm(reshape(x,n1,[]));   % This norm is considered
+    f3.eval = @(x) norm_tv(reshape(x,n1,[]));   % This norm is considered
                                                 % as the objective function
                                                 
     
@@ -220,7 +220,7 @@ function [ S_est, Img_est ] = general_solver( decorr,sampling_mecanism,method,SN
     
     param.lambda = 1;
     param.maxit = 180;
-    
+    param.verbose = 2;
     % solve the probleme
     [S_est]= ppxa(x_0,F, param);
     

@@ -98,15 +98,14 @@
 
 %% Initialization
 
-    clear all;
+    clear;
     close all;
-    clc;
 
     % adding path
     addpath(genpath('./'))
     init_unlocbox()
     global GLOBAL_useGPU;
-
+    verbose = 2;
 %% General parameter
  
     sampling_ratios = 1/16;             % compression ratio   only 2^(-p) with  p =1,2,3,... (random convolution RC)
@@ -271,7 +270,7 @@
     paramL2.nu = nu_phi * nu_H;
     paramL2.tol = 1e-5;
     paramL2.maxit = 100;
-    paramL2.verbose = 1;
+    paramL2.verbose = verbose -1;;
     paramL2.y = y;              % measures
     paramL2.epsilon = epsilon;  %radius of the ball
     paramL2.A = @(x) Phi1( reshape(reshape(x,N,I)*H1',[],1 ));      % operator
@@ -308,13 +307,13 @@
     
     param_TV.maxit = 200;
     param_TV.tol = 10e-5;
-    param_TV.verbose = 1;
+    param_TV.verbose = verbose -1;;
     param_TV.useGPU=GLOBAL_useGPU;
         
     k=0.3333;
     
     f3.prox = @(x,T) reshape(prox_tv(reshape(x,n1,[]),k*T,param_TV),N*I,1);    
-    f3.eval = @(x) tv_norm(reshape(x,n1,[]));   % This norm is considered
+    f3.eval = @(x) norm_tv(reshape(x,n1,[]));   % This norm is considered
                                                 % as the objective function
                                                 
     
@@ -342,7 +341,7 @@
 
     opW2D_blk = opBlock_diag_same(I,W2D);
 
-    paramW.verbose=1;
+    paramW.verbose= verbose -1;
     paramW.maxit=100;
     paramW.At=@(x) opW2D_blk(x,1);
     paramW.A=@(x) opW2D_blk(x,2);
@@ -368,7 +367,7 @@
     % Parameter for ppxa algorithm
     param.maxit = 200;
     param.lambda = 1;
-    
+    param.verbose = verbose;
     % TV
     t=cputime;
     % solve the probleme

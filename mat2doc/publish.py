@@ -229,9 +229,9 @@ if 'sendphp' in todo:
     os.system(s)  
 
 
-# if 'sendweb' in todo:
-#     s='rsync -av '+outputdirweb+' '+host+':'+www
-#     os.system(s)  
+if 'sendweb' in todo:
+    s="rsync --verbose --archive --exclude '.git' "+outputdirweb+' '+host+':'+www
+    os.system(s)  
 
 
 

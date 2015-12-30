@@ -9,7 +9,7 @@
 %
 %   Demonstration matlab file
 %
-%   Autors: Mohammad Golbabaee, Perraudin Nathana?l
+%   Autors: Mohammad Golbabaee, Perraudin Nathanael
 %   
 % 	EPFL -- August 2012
 %

@@ -124,9 +124,8 @@
 
 %% Initialization
 
-    clear all;
+    clear;
     close all;
-    clc;
 
     % adding path
     addpath(genpath('./'))
