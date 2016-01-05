@@ -5,3 +5,6 @@ addpath /Users/nati/work/git/toolbox/ltfat
 ltfatstart;
 addpath /Users/nati/work/git/toolbox/gspbox
 gsp_start;
+
+addpath /Users/nati/work/git/toolbox/unlocbox-rr
+init_unlocboxrr()
