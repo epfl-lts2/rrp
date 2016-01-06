@@ -18,5 +18,5 @@ GLOBAL_path = fileparts(mfilename('fullpath'));
 
 
 addpath(genpath(GLOBAL_path));
-
+disp('R2p started')
 

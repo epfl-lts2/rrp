@@ -46,11 +46,13 @@ f.close()
 # ------- do not edit below this line ----------
 f = open(project + 'mat2doc/startup.m', 'w')
 f.write('addpath ' + unlocxpath + '\n')
-f.write('init_unlocbox;\n\n')
+f.write('init_unlocbox;\n')
 f.write('addpath ' + ltfatpath + '\n')
 f.write('ltfatstart;\n');
 f.write('addpath ' + gsppath + '\n')
 f.write('gsp_start;\n');
+f.write('addpath ' + rrppath + '\n')
+f.write('init_unlocboxrr;\n');
 f.close()
 
 

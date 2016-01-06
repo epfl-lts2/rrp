@@ -64,8 +64,8 @@
 % Feb 2013, Lausanne, Switzerland
 
 %% ****** Initialization ******
-clear all
-clc
+clear
+
 close all
 init_unlocbox
 

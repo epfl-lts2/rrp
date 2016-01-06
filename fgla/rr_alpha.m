@@ -82,9 +82,8 @@
 % ----------------------------------------------------------------------- %
 
 %% Initialisation
-clear all;
+clear;
 close all;
-clc;
 
 % The LTFAT toolbox is required for this demonstration file
 ltfatstart % if this line is a problem, add to path the LTFAT toolbox.
@@ -124,13 +123,13 @@ paramplot.position=[100 100 600 400];
 %% gspi
 param.maxit=10000;                  % Maximal number of iteration
 sound_name='bat';                  % Sound name
-main(a,M,alpha,window_type,sound_name,real_signal,type_multiplier,...
+main_flga(a,M,alpha,window_type,sound_name,real_signal,type_multiplier,...
                                       solving_method,param,paramplot);
 
                                       
 %% bat       
 param.maxit=1000;                  % Maximal number of iteration
 sound_name='gspi';                   % Sound name                   
-main(a,M,alpha,window_type,sound_name,real_signal,type_multiplier,...
+main_flga(a,M,alpha,window_type,sound_name,real_signal,type_multiplier,...
                                       solving_method,param,paramplot); 
                                   

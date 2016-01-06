@@ -755,8 +755,8 @@ end
             param_solver.do_sol=@(x) plot_window(x,ceil(kv.evolution),...
                 fig,kv.gif);
         end
-        [gd,iter,~]=ppxa(xin,F,param_solver);
-        
+        [gd,infos]=solvep(xin,F,param_solver);
+        iter = infos.iter;
         % Force the hard constraint
         if flags.do_hardconstraint
             % In case of use of the douglas rachford algo instead of POCS

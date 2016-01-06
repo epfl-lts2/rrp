@@ -156,5 +156,5 @@ end
 if exist('ver')==2
 	sprintf(texstr)
 else
-	printf(texstr)
+	fprintf(texstr)
 end

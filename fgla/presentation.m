@@ -5,9 +5,8 @@
 % Date  : 11st October 2013
 
 %% Initialisation
-clear all;
+clear;
 close all;
-clc;
 
 paramplot.pathfigure = 'figures/presentation/'; 
 paramplot.position = [100 100 300 200];

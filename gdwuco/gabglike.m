@@ -294,8 +294,8 @@ end
             plot_window_proj(x,ceil(kv.evolution),fig,...
             @(x) g5.prox(x,0),kv.gif);
     end
-    [gd,iter,~]=pocs(xin,F,param_solver);
-
+    [gd,infos]=pocs(xin,F,param_solver);
+    iter = infos.iter;
     % Force the hard constraint
     if flags.do_hardconstraint
          gd=g5.prox(gd,0);
