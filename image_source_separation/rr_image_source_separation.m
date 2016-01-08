@@ -128,7 +128,7 @@
     close all;
 
     % adding path
-    addpath(genpath('./'))
+%     addpath(genpath('./'))
 
 
 %% General parameter

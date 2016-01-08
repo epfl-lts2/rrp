@@ -102,7 +102,7 @@
     close all;
 
     % adding path
-    addpath(genpath('./'))
+%     addpath(genpath('./'))
     init_unlocbox()
     global GLOBAL_useGPU;
     verbose = 2;

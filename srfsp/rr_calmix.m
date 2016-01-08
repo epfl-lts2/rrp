@@ -47,7 +47,7 @@
 %
 %   To recover the original signal, we will solve the following convex
 %   optimization problem. More information can be found in
-%   |rr_superresolution_for_spectrometry| :
+%   rr_superresolution_for_spectrometry:
 %
 %   .. argmin_x || x ||_1    such that || M F^{-1} x - y ||_2 < epsilon
 %

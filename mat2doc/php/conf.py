@@ -1,5 +1,5 @@
 fext='.php'
-urlbase='https://r2p.sourceforge.net/'
+urlbase='https://lts2.epfl.ch/rrp'
 urlext='.php'
 widthstr=''
 imagetype='png'

@@ -1,5 +1,5 @@
 fext='.tex'
-urlbase='https://lts2research.epfl.ch/rrp'
+urlbase='https://lts2.epfl.ch/rrp'
 urlext='php'
 widthstr='60ex'
 imagetype='eps'

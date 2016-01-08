@@ -38,7 +38,7 @@ if ~mod(x.iter-1,p)
     xlabel('Frequency')
     ylabel('Modulus')
     title(['Current it: ', num2str(x.iter),'   Curr obj: ', ...
-        num2str(x.curr_eval)]);
+        num2str(x.info.objective(x.iter))]);
     subplot(122)
     plot(w,abs(sol(:)));
     xlabel('Frequency')

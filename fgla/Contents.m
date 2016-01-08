@@ -29,5 +29,5 @@
 %    RR_SPECTRO_MULT - Spectrogram multiplication experiment on different signals
 %
 %  For help, bug reports, suggestions etc. please send email to
-%  unlocbox-help@lists.sourceforge.net
+%  nathanael (dot) perraudin (at) epfl (dot) ch
 %
