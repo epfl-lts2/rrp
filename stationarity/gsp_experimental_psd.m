@@ -42,7 +42,7 @@ end
 
     Cf = U'*C*U;
     
-    cf = abs(diag(Cf));
+    cf = diag(Cf);
     
     gf = @(s) max(spline(G.e,cf,s),0);
 end

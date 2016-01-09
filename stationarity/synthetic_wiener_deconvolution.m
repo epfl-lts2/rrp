@@ -160,21 +160,6 @@ for ii = 1: length(sigma)
     xbar = gsp_filter(G,wf,y);
 
 
-%     % Optimization
-%     paramproj.epsilon = sqrt(N)*sigma(ii);
-%     paramproj.verbose = 0;
-%     paramproj.tight = 0;
-%     ffid.prox = @(x,T) gsp_proj_b2_filterbank(x, T, G, h, y, paramproj);
-%     ffid.eval = @(x) eps;
-% 
-%     ftik.grad = @(x) 2*G.L*x;
-%     ftik.eval = @(x) gsp_norm_tik(G,x);
-%     ftik.beta = 2*G.lmax;
-% 
-%     paramtv.verbose = 0;
-%     ftv.prox = @(x,T) gsp_prox_tv(x,T,G,paramtv);
-%     ftv.eval = @(x) gsp_norm_tv(G,x);
-
     sol_tik = gsp_tik_deconvolution_noise(G, y, h, sigma(ii), param);
     sol_tv = gsp_tv_deconvolution_noise(G, y, h, sigma(ii), param);
 

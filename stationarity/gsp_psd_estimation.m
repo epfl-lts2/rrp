@@ -25,7 +25,7 @@ function psd = gsp_psd_estimation(G, x, param)
 %     .. math:: g(x)  = e^{-\frac{(N_f x)^2}{\lambda_{\max}^2}}
 %
 %   Additional parameters are availlable in the function
-%   |gsp_filter_analysis|.
+%   gsp_filter_analysis.
 %   
 %   References: perraudin2016stationary
 

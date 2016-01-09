@@ -65,15 +65,17 @@
 %% Data handling
 close all;
 clear
-Ns = 300;
-verbose = 1;
+gsp_reset_seed
+Ns = 300; % Number of samples to construct the graph
+Next = 128; % Number of test samples
+verbose = 0; % verbosity
 %% Load the data
 [x, y] = load_usps_full();
 % Data to learn the kernel
 X0 = x(:,1:Ns);
 % Data to perform the experiment
-X = x(:,Ns:end);
-
+X = x(:,Ns:(Ns+Next));
+X = X - mean(X(:));
 %% Graph creation from the data X0
 param.use_flann = 1;
 param.k = 20;
@@ -111,10 +113,10 @@ param.verbose = verbose;
 
 for jj = 1:length(sigma)
     jj
-    wf = @(x) psd(x)./( psd(x)+ sigma(jj)^2 + eps);
-
-    wl = @(x) sigma(jj).^2./(psd(x)+eps);
-    f = @(x) 1./(wl(x)+1);
+%     wf = @(x) psd(x)./( psd(x)+ sigma(jj)^2 + eps);
+% 
+%     wl = @(x) sigma(jj).^2./(psd(x)+eps);
+%     f = @(x) 1./(wl(x)+1);
 
     
 
@@ -129,6 +131,7 @@ for jj = 1:length(sigma)
         y = s + sigma(jj) * randn(G.N,1);
         y = Mask.*y;
         
+        % Classic solution
         paramproj = struct;
         paramproj.A = @(x) Mask.*x;
         paramproj.At = @(x) Mask.*x;
@@ -138,55 +141,32 @@ for jj = 1:length(sigma)
         ffid = struct;
         ffid.prox = @(x,T) proj_b2(x,T,paramproj);
         ffid.eval = @(x) eps;
-        
-%         paramprox = struct;
-%         paramprox.verbose = 0;
-%         paramprox.y = y;
-%         ffid2 = struct;
-%         ffid2.grad = @(x) 2*Mask.*(Mask.*x-y);
-%         ffid2.eval = @(x) norm(Mask.*(x-y)).^2;
-%         ffid2.beta = 2;
-%         fwiener = struct;
-%         fwiener.prox = @(x,T) gsp_filter_analysis(G,f,x);
-%         fwiener.eval = @(x) 0.5*norm(wl(G.e).*gsp_gft(G,x))^2;
-
+       
 
         ftik_classic = struct;
         ftik_classic.grad = @(x) 2*G2.L*x;
         ftik_classic.eval = @(x) gsp_norm_tik(G2,x);
         ftik_classic.beta = 2*G2.lmax;
         
-%         ftik = struct;
-%         ftik.grad = @(x) 2*G.L*x;
-%         ftik.eval = @(x) gsp_norm_tik(G,x);
-%         ftik.beta = 2*G.lmax;    
-        
+   
         paramtv_classic = struct;
         paramtv_classic.verbose = verbose -1;
         ftvclassic = struct;
         ftvclassic.prox = @(x,T) reshape(prox_tv(reshape(x,16,16),T,paramtv_classic),[],1);
         ftvclassic.eval = @(x) norm_tv(reshape(x,16,16));
-%         
-%         paramtv = struct;
-%         paramtv.verbose = 0;
-%         ftv = struct;
-%         ftv.prox = @(x,T) gsp_prox_tv(x,T,G,paramtv);
-%         ftv.eval = @(x) gsp_norm_tv(G,x);
+        
 
-        % sol = solvep(y,{ffid,fwiener});
-        % sol2 = solvep(y,{ffid,fwiener2});
         paramsolver = struct;
         paramsolver.verbose = verbose;
         sol_tik_classic = solvep(y,{ffid,ftik_classic},paramsolver);
-%         sol_tik = solvep(y,{ffid,ftik},paramsolver);
         sol_tv_classic = solvep(y,{ffid,ftvclassic},paramsolver);
-%         sol_tv = solvep(y,{ffid,ftv},paramsolver);
-        sol_tik = gsp_tik_inpainting_noise(G, y, Mask, sigma(jj), param);
-        sol_tv = gsp_tv_inpainting_noise(G, y, Mask, sigma(jj), param);
-        A = @(x) Mask.*x;
-        At = @(x) Mask.*x;
-        sol_wiener = gsp_wiener_inpainting(G,y, A, At, psd, sigma(jj).^2, param);
-%         sol_wiener = solvep(y,{ffid2,fwiener},paramsolver);
+        
+        % Graph solution
+         sol_tik = gsp_tik_inpainting_noise(G, y, Mask, sigma(jj), param);
+         sol_tv = gsp_tv_inpainting_noise(G, y, Mask, sigma(jj), param);
+         A = @(x) Mask.*x;
+         At = @(x) Mask.*x;
+         sol_wiener = gsp_wiener_l2(G,y, A, At, psd, sigma(jj).^2, param);
 
         error_tik(ii,jj) = norm(sol_tik - s)/norm(s);
         error_tv(ii,jj) = norm(sol_tv - s)/norm(s);
@@ -207,7 +187,7 @@ merr_tik_classic = mean(error_tik_classic,1);
 merr_tv_classic = mean(error_tv_classic,1);
 merr_wiener = mean(error_wiener,1);   
 
-save('USPS_eperiment.mat')
+% save('USPS_eperiment.mat')
 
 %% Plot results
 
@@ -235,12 +215,13 @@ plot(sigma/nfac, merr_tik_classic, ...
     sigma/nfac, merr_tv_classic, ...
     sigma/nfac, merr_tik, ...
     sigma/nfac, merr_tv, ...
-    sigma/nfac, merr_wiener);
+    sigma/nfac, merr_wiener,...
+    'LineWidth',2);
 ylabel('Relative error');
 xlabel('Noise level');
 axis tight;
 title('Inpainting relative error')
-legend('Classic Tikonov','Classic TV','Graph Tikonov','Graph TV','Wiener','Location','NorthWest');
+legend('Classic Tikonov','Classic TV','Graph Tikonov','Graph TV','Wiener','Location','Best');
 gsp_plotfig('usps_inpainting_errors',paramplot)
 
 

@@ -145,8 +145,8 @@ for ii = 1:length(percent)
 
     A = @(x) Mask.*x;
     At = @(x) Mask.*x;
-    sol_wiener = gsp_wiener_inpainting(G, y, A, At, psd, sigma^2, param);
-    sol_wiener50 = gsp_wiener_inpainting(G, y, A, At, psd50, sigma^2, param);
+    sol_wiener = gsp_wiener_l2(G, y, A, At, psd, sigma^2, param);
+    sol_wiener50 = gsp_wiener_l2(G, y, A, At, psd50, sigma^2, param);
 
     error_tik(ii) = norm(sol_tik-s)/norm(s);
     error_tv(ii) = norm(sol_tv-s)/norm(s);
@@ -201,13 +201,12 @@ gsp_plotfig('synthetic_inpainting_errors',paramplot)
 
 
 % % Solve the problems
-% sol_tik = gsp_tik_inpainting_noise(G, y, Mask, sigma);
-% sol_tv = gsp_tv_inpainting_noise(G, y, Mask, sigma);
+% % sol_tik = gsp_tik_inpainting_noise(G, y, Mask, sigma);
+% % sol_tv = gsp_tv_inpainting_noise(G, y, Mask, sigma);
 % 
 % A = @(x) Mask.*x;
 % At = @(x) Mask.*x;
-% sol_wiener = gsp_wiener_inpainting(G, y, A, At, psd, sigma^2);
-% sol_wiener50 = gsp_wiener_inpainting(G, y, A, At, psd50, sigma^2);
+% sol_wiener = gsp_wiener_l2(G, y, A, At, psd, sigma^2);
 
 % figure(4)
 % subplot(221)
