@@ -13,7 +13,7 @@ function r = gsp_stationarity_ratio(G, C)
 %
 %   .. T = U' * C * U 
 %
-%   .. math:: \Tau = U^{*} C U
+%   .. math:: T = U^{*} C U
 %
 %   References: perraudin2016stationary
 

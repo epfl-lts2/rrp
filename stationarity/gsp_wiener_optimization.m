@@ -3,6 +3,7 @@ function [sol, infos] = gsp_wiener_optimization(G, x0, f, psd, psd_noise, param)
 %   Usage:  sol = gsp_wiener_optimization(G, x0, ffid, psd, psd_noise)
 %           sol = gsp_wiener_optimization(G, x0, ffid, psd, psd_noise, param)
 %           [sol, infos] = gsp_wiener_optimization(...)
+%
 %   Input parameters:
 %         G          : Graph (GSP structure)
 %         x0         : Starting point (column vector)

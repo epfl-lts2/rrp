@@ -46,10 +46,10 @@
 %   $N$ is greater than a few thousands. Diagonalizing the Laplacian
 %   requires $\mathcal{O}(N^3)$ operations, while for a fixed error, the
 %   approximation scales with the number of edges of the graph:
-%   $\mathcal{O}(|\E|)$, (which is proportional to $N$ in many graphs). In
+%   $\mathcal{O}(|E|)$, (which is proportional to $N$ in many graphs). In
 %   fact, this estimation necessitates $ (K + K_2) M $ filtering operations
 %   (with $M$ the number of points where the PSD). The final computation
-%   cost of the method is thus $\mathcal{O}\left((K + K_2) M |\E|\right)$.
+%   cost of the method is thus $\mathcal{O}\left((K + K_2) M |E|\right)$.
 %
 %   References: perraudin2016stationary
 

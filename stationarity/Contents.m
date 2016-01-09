@@ -42,8 +42,8 @@
 %      GSP_STATIONARITY_COV - Covariance matrix from graph stationary data
 %      GSP_STATIONARITY_RATIO - Assert the stationarity level of some data
 %      GSP_PSD_ESTIMATION - Estimation of the Power spectrum density
-%      GSP_WINER_OPTIMIZATION -Solve wiener optimization problem
-%      GSP_WINER_L2 - Solve wiener optimization problem with l2 fidelity term
+%      GSP_WIENER_OPTIMIZATION -Solve wiener optimization problem
+%      GSP_WIENER_L2 - Solve wiener optimization problem with l2 fidelity term
 %
 %  For help, bug reports, suggestions etc. please send email to
 %  nathanael (dot) perraudin (at) epfl (dot) ch

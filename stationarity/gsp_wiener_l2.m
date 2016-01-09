@@ -3,6 +3,7 @@ function [sol, infos] = gsp_wiener_l2(G,y, A, At, psd, psd_noise, param)
 %   Usage:  sol = gsp_wiener_l2(G, y, ffid, psd, psd_noise)
 %           sol = gsp_wiener_l2(G, y, ffid, psd, psd_noise, param)
 %           [sol, infos] = gsp_wiener_l2(...)
+%
 %   Input parameters:
 %         G          : Graph (GSP structure)
 %         x0         : Measurements (column vector)

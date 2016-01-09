@@ -49,7 +49,7 @@
 %
 %      Signal and filters for a noise level of $0.16$. 
 %
-%      The convolution kernel is $e^{-\frac{10 x}{\lmax}}$.
+%      The convolution kernel is $e^{-\frac{10 x}{\lambda_{\max}}}$.
 %
 %   .. figure::
 %

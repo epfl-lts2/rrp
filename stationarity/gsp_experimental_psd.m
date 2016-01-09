@@ -12,7 +12,7 @@ function gf = gsp_experimental_psd(G,C)
 %
 %   .. T = U' * C * U 
 %
-%   .. math:: \Tau = U^{*} C U
+%   .. math:: T = U^{*} C U
 %
 %   where $U$ is the graph Fourier basis. The function then interpolates
 %   the diagonal of $T$ with splines.
