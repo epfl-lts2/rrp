@@ -26,11 +26,12 @@ k = 0;
 for i = 1:n_rows
     for j = 1:n_cols
         k = k + 1;
-        I(1+(i-1)*pix_y : i*pix_y, 1+(j-1)*pix_x : j*pix_x) = reshape(X(:, k), pix_y, pix_x)';
+        I(1+(i-1)*pix_y : i*pix_y, 1+(j-1)*pix_x : j*pix_x) = reshape(X(:, k), pix_y, pix_x);
     end
 end
 %imshow(I, []);
 imagesc(I);
-colormap gray;
+colormap gray
 axis off
+axis equal
 

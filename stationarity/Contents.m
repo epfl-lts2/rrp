@@ -34,6 +34,7 @@
 %      EXPERIMENT_MOLENE_HUMIDITY - In-painting on the Molene humidity dataset
 %      EXPERIMENT_MOLENE_TEMPERATURE - In-painting on the Molene temperature dataset
 %      EXPERIMENT_USPS_INPAINTING - In-painting on the USPS dataset
+%      EXPERIMENT_ORL_INPAINTING - In-painting on the USPS dataset
 %
 %
 %   Functions 

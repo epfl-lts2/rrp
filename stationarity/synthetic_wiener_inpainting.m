@@ -66,8 +66,10 @@ close all;
 gsp_reset_seed(0)
 
 N = 400; % Size of the graph
-K = 50; % Number of signal to estimate the PSD
-sigma = 0.1; % Noise level
+K = 1; % Number of signal to estimate the PSD
+K2 = 100; % Number of signal to estimate the covariance matrix empirically
+M = 50; % Number of experiment
+sigma = 0.05; % Noise level
 verbose = 0; % Verbosity level
 
 %% Create a graph
@@ -88,11 +90,14 @@ psd = @(x) (g(x)).^2;
 % filter random signals
 w = randn(N,K);
 x = gsp_filter_analysis(G,g,w);
+w2 = randn(N,K2);
+x2 = gsp_filter_analysis(G,g,w2);
 
 % Compute an experimental approximation of the PSD
-Cov_exp = gsp_stationarity_cov(x);
+Cov_exp50 = gsp_stationarity_cov(x2);
 % psd50 = gsp_experimental_psd(G,Cov_exp);
-psd50 = gsp_psd_estimation(G,x);
+param_psd.Nfilt = 50;
+psd1 = gsp_psd_estimation(G,x,param_psd);
 
 
 %% Create the wiener filter
@@ -100,15 +105,15 @@ psd50 = gsp_psd_estimation(G,x);
 h = @(x) 1;
 
 wf = @(x) h(x).*psd(x)./((h(x)).^ 2 .*psd(x)+ sigma^2 + eps);
-wf50 = @(x) h(x).*abs(psd50(x))./((h(x)).^ 2 .*abs(psd50(x))+ sigma^2 + eps);
+wf1 = @(x) h(x).*abs(psd1(x))./((h(x)).^ 2 .*abs(psd1(x))+ sigma^2 + eps);
 
 % Discrete filters for plotting
 
 wl = @(x) sigma.^2./(psd(x)+eps);
 f = @(x) 1./(wl(x)+1);
 
-wl50 = @(x) sigma.^2./(psd50(x)+eps);
-f50 = @(x) 1./(wl50(x)+1);
+wl1 = @(x) sigma.^2./(psd1(x)+eps);
+f1 = @(x) 1./(wl1(x)+1);
 
 
 
@@ -121,10 +126,13 @@ percent = 5:5:95;
 error_tik = zeros(length(percent),1);
 error_tv = zeros(length(percent),1);
 error_wiener = zeros(length(percent),1);
-error_wiener50 = zeros(length(percent),1);
-% Generate a new signal
-s = gsp_filter(G,g,randn(N,1));
-y2 = s+ sigma *randn(N,1);
+error_wiener1 = zeros(length(percent),1);
+error_grm = zeros(length(percent),1);
+% Generate M new signals
+s = gsp_filter(G,g,randn(N,M));
+y2 = s+ sigma *randn(N,M);
+
+
 
 ind = randperm(N);
 
@@ -135,7 +143,9 @@ for ii = 1:length(percent)
     y = y2;
     Mask = zeros(N,1);
     Mask(ind(1:round(percent(ii)/100*N)))=1;
-    y = Mask.*y;
+    A = @(x) bsxfun(@times, Mask, x);
+    At = @(x) bsxfun(@times, Mask, x);
+    y = A(y);
 
 
 
@@ -143,22 +153,21 @@ for ii = 1:length(percent)
     sol_tik = gsp_tik_inpainting_noise(G, y, Mask, sigma, param);
     sol_tv = gsp_tv_inpainting_noise(G, y, Mask, sigma, param);
 
-    A = @(x) Mask.*x;
-    At = @(x) Mask.*x;
     sol_wiener = gsp_wiener_l2(G, y, A, At, psd, sigma^2, param);
-    sol_wiener50 = gsp_wiener_l2(G, y, A, At, psd50, sigma^2, param);
+    sol_wiener1 = gsp_wiener_l2(G, y, A, At, psd1, sigma^2, param);
+    sol_grm = grm_estimator(Cov_exp50,Mask,y,sigma^2);
+    error_tik(ii) = norm(sol_tik-s,'fro')/norm(s,'fro');
+    error_tv(ii) = norm(sol_tv-s,'fro')/norm(s,'fro');
 
-    error_tik(ii) = norm(sol_tik-s)/norm(s);
-    error_tv(ii) = norm(sol_tv-s)/norm(s);
-
-    error_wiener(ii) = norm(sol_wiener-s)/norm(s);
-    error_wiener50(ii) = norm(sol_wiener50-s)/norm(s);
+    error_wiener(ii) = norm(sol_wiener-s,'fro')/norm(s,'fro');
+    error_wiener1(ii) = norm(sol_wiener1-s,'fro')/norm(s,'fro');
+    error_grm(ii) = norm(sol_grm-s,'fro')/norm(s,'fro');
 
 end
 %% Plot the result
 figure(1);
 paramplot.position = [100 100 300 220];
-plot(G.e,psd(G.e),G.e,abs(psd50(G.e)),'--','LineWidth',2);
+plot(G.e,psd(G.e),G.e,abs(psd1(G.e)),'--','LineWidth',2);
 xlabel('Laplacian eigenvalues')
 legend('Real PSD','Approximated PSD');
 
@@ -169,20 +178,20 @@ gsp_plotfig('PSD_approx',paramplot);
 
 figure(2);
 paramplot.position = [100 100 300 220];
-plot(G.e,wf50(G.e),G.e,wf(G.e),'--','LineWidth',2);
+plot(G.e,wf1(G.e),G.e,wf(G.e),'--','LineWidth',2);
 xlabel('Laplacian eigenvalues')
 legend('Approximated','Exact');
 title('Wiener filters')
 gsp_plotfig('approx_wiener_filter',paramplot);
 
 figure(3)
-paramplot.position = [100,100,300,220];
-plot(percent,error_tik,percent,error_tv,percent,error_wiener,percent,error_wiener50,'--','LineWidth',2)
+paramplot.position = [100,100,450,315];
+plot(percent,error_tik,percent,error_tv,percent,error_wiener,percent,error_wiener1,percent,error_grm,'--','LineWidth',2)
 xlabel('Percent of measurements');
 ylabel('Relative error');
 axis tight;
 title('In-painting relative error')
-legend('Tikonov','TV','Wiener','Wiener 50 meas.');
+legend('Tikonov','TV','Wiener, exact PSD','Wiener, PSD from 1 meas.','Gaussian MAP from 50 meas.');
 gsp_plotfig('synthetic_inpainting_errors',paramplot)
 
 

@@ -28,16 +28,33 @@
 %   ---------------
 %
 %   We perform the same kind of in-painting/de-noising experiment with the
-%   USPS dataset. We compute the graph using the first $300$ digits and use
-%   $4349$ of the remaining ones to test our algorithm. We use a mask
-%   covering $50$ per cent of the pixel and various amount of noise. We
-%   then average the result over $4349$ experiments (corresponding to the
-%   $4349$ digits) to obtain the curves displayed in Figure 2. For this
-%   experiment, we also compare to traditional TV de-noising and Tikonow
-%   de-noising. The results presented in Figure 2 show that graph
-%   optimization is outperforming classical techniques meaning that the
-%   grid is not the optimal graph for the USPS dataset. Moreover, Wiener
-%   once again outperforms the other graph-based models.
+%   USPS dataset. For our experiments, we consider every digit as an
+%   independent realization of a GWSS process. As sole pre-processing, we
+%   remove the mean (over pixels and digits). It is also possible to remove
+%   the mean of each pixel separately. It might increase the stationarity
+%   level of the data. In this contribution, we choose not to perform this
+%   pre-processing as we consider the raw data stationary. We create the
+%   graph using patches of pixels of size $5 \times 5$. The pixels' patches
+%   help because we have only a few digits available. When the size of the
+%   data increases, a nearest neighbor graph performs even better. We
+%   estimate the PSD using only the first $20$ digits and we use $500$ of
+%   the remaining ones to test our algorithm. We use a mask covering $50$
+%   per cent of the pixel and various amount of noise. We then average the
+%   result over $500$ experiments (corresponding to the $500$ digits) to
+%   obtain the curves displayed in Figure 2. For this experiment, we also
+%   compare to traditional TV de-noising and Tikonov de-noising.
+%   Additionally we compute the classical MAP estimator based on the
+%   empirical covariance matrix for the solution. The results presented in
+%   Figure 2 show that graph optimization is outperforming classical
+%   techniques meaning that the grid is not the optimal graph for the USPS
+%   dataset. Wiener once again outperforms the other graph-based models.
+%   Moreover, this experiment shows that our PSD estimation is robust when
+%   the number of signals is small. In other words, using the graph allows
+%   us for a much better covariance estimation than a simple empirical
+%   average. When the number of measurements increases, the MAP estimator
+%   improves in performance and eventually outperforms Wiener because the
+%   data is close to stationary on the graph.
+%
 %
 %   .. figure::
 %
@@ -53,6 +70,18 @@
 %
 %      Methods using the nearest neighbors graph performs better.
 %
+%   .. figure::
+%
+%      Different PSDs
+%
+%      Compared to $\frac{1}{x}$, the approximation is a smoothed version
+%      of the experimental PSD.
+%
+%   .. figure::
+%
+%      Some digits of the USPS dataset.
+%
+%      
 %
 %   References: perraudin2016stationary
 
@@ -66,28 +95,35 @@
 close all;
 clear
 gsp_reset_seed
-Ns = 300; % Number of samples to construct the graph
-Next = 128; % Number of test samples
+Ng = 20; % Number of samples to construct the graph
+Ns = 20; % Number of samples to estimate the PSD
+Next = 20; % Number of test samples
 verbose = 0; % verbosity
 %% Load the data
 [x, y] = load_usps_full();
 % Data to learn the kernel
 X0 = x(:,1:Ns);
+% Data to learn the kernel
+XG = x(:,1:Ng);
 % Data to perform the experiment
 X = x(:,Ns:(Ns+Next));
 X = X - mean(X(:));
 %% Graph creation from the data X0
-param.use_flann = 1;
-param.k = 20;
-param.sigma = 0.2*size(x,2);
-G = gsp_nn_graph(X0,param);
+% param.use_flann = 0;
+% param.k = 20;
+% param.sigma = 0.2*size(XG,2);
+% G = gsp_nn_graph(XG,param);
+% G = gsp_2dgrid(16,16);
+G = gsp_patch_graph(reshape(XG,16,16,Ng));
 G = gsp_compute_fourier_basis(G);
 G = gsp_adj2vec(G);
 
-
+X0 = X0 - mean(X(:));
+XG = XG - mean(X(:));
 %% Covariance matrices
 
 CovM0 = gsp_stationarity_cov(X0);
+
 
 CovM = gsp_stationarity_cov(X);
 CovMF = G.U'*CovM*G.U;
@@ -95,16 +131,19 @@ CovMF = G.U'*CovM*G.U;
 r = gsp_stationarity_ratio(G, CovM);
 fprintf('The stationarity ratio is: %d\n', r);
 
-psd = gsp_experimental_psd(G,CovM0);
-
+psd_t = gsp_experimental_psd(G,CovM);
+psd = gsp_psd_estimation(G,X0);
 %%
-sigma = mean(sqrt(sum(X.^2)))*(0.02:0.02:0.2);
+rel_sigma = (0.05:0.05:0.5);
+sigma = norm(X,'fro')/sqrt(numel(X))*rel_sigma;
+% sigma = mean(sqrt(sum(X.^2)))*(0.02:0.04:0.2);
 
 error_tik = zeros(size(X,2),length(sigma));
 error_tv = zeros(size(X,2),length(sigma));
 error_tv_classic = zeros(size(X,2),length(sigma));
 error_tik_classic = zeros(size(X,2),length(sigma));
 error_wiener = zeros(size(X,2),length(sigma));
+error_grm = zeros(size(X,2),length(sigma));
 
 G2 = gsp_2dgrid(16,16);
 G2 = gsp_compute_fourier_basis(G2);
@@ -159,21 +198,23 @@ for jj = 1:length(sigma)
         paramsolver = struct;
         paramsolver.verbose = verbose;
         sol_tik_classic = solvep(y,{ffid,ftik_classic},paramsolver);
+        paramsolver.gamma = 0.1;
         sol_tv_classic = solvep(y,{ffid,ftvclassic},paramsolver);
         
         % Graph solution
-         sol_tik = gsp_tik_inpainting_noise(G, y, Mask, sigma(jj), param);
-         sol_tv = gsp_tv_inpainting_noise(G, y, Mask, sigma(jj), param);
-         A = @(x) Mask.*x;
-         At = @(x) Mask.*x;
-         sol_wiener = gsp_wiener_l2(G,y, A, At, psd, sigma(jj).^2, param);
-
+        sol_tik = gsp_tik_inpainting_noise(G, y, Mask, sigma(jj), param);
+        sol_tv = gsp_tv_inpainting_noise(G, y, Mask, sigma(jj), param);
+        A = @(x) Mask.*x;
+        At = @(x) Mask.*x;
+        sol_wiener = gsp_wiener_l2(G,y, A, At, psd, sigma(jj).^2, param);
+        sol_grm = grm_estimator(CovM0,Mask,y,sigma(jj).^2);
         error_tik(ii,jj) = norm(sol_tik - s)/norm(s);
         error_tv(ii,jj) = norm(sol_tv - s)/norm(s);
         error_tik_classic(ii,jj) = norm(sol_tik_classic - s)/norm(s);
         error_tv_classic(ii,jj) = norm(sol_tv_classic - s)/norm(s);
         error_wiener(ii,jj) = norm(sol_wiener - s)/norm(s);
 
+        error_grm(ii,jj) = norm(sol_grm - s)/norm(s);
 
 
     end
@@ -186,8 +227,9 @@ merr_tv = mean(error_tv,1);
 merr_tik_classic = mean(error_tik_classic,1);
 merr_tv_classic = mean(error_tv_classic,1);
 merr_wiener = mean(error_wiener,1);   
+merr_grm = mean(error_grm,1);   
 
-% save('USPS_eperiment.mat')
+save('USPS_eperiment.mat')
 
 %% Plot results
 
@@ -199,7 +241,7 @@ colorbar
 title('Graph weighted adjacency matrix');
 subplot(122)
 a = -10;
-disp = 10*log10(abs(CovMF(1:50,1:50)));
+disp = 20*log10(abs(CovMF(1:50,1:50)));
 disp(disp<a) = a;
 imagesc(disp)
 colorbar
@@ -207,22 +249,39 @@ imagesc(disp)
 colorbar
 title('Covariance matrix in Fourier (dB)');
 gsp_plotfig('usps_cov',paramplot)
-
-nfac = mean(sqrt(sum(X.^2)));
+%%
 figure(2)
-paramplot.position = [100,100,300,220];
-plot(sigma/nfac, merr_tik_classic, ...
-    sigma/nfac, merr_tv_classic, ...
-    sigma/nfac, merr_tik, ...
-    sigma/nfac, merr_tv, ...
-    sigma/nfac, merr_wiener,...
+paramplot.position = [100,100,450,330];
+plot(rel_sigma, merr_tik_classic, ...
+    rel_sigma, merr_tv_classic, ...
+    rel_sigma, merr_tik, ...
+    rel_sigma, merr_tv, ...
+    rel_sigma, merr_wiener,...
+    rel_sigma, merr_grm,...
     'LineWidth',2);
 ylabel('Relative error');
 xlabel('Noise level');
 axis tight;
-title('Inpainting relative error')
-legend('Classic Tikonov','Classic TV','Graph Tikonov','Graph TV','Wiener','Location','Best');
+title('In-painting relative error')
+legend('Classic Tikonov','Classic TV','Graph Tikonov','Graph TV','Wiener','Gaussian MAP','Location','SouthEast');
 gsp_plotfig('usps_inpainting_errors',paramplot)
 
 
+%% Plot the PSDs
+figure(3)
+paramplot.position = [100,100,300,220];
+plot(G.e,psd_t(G.e),G.e,psd(G.e), G.e, 1./G.e,'LineWidth',2)
+axis([0 G.lmax/2 0 15])
+h =legend('Experimental (All signals)','Approximation using 20 signals','1/x');
+title('PSD')
+set(h,'Position', [0.2133 0.6511 0.8200 0.2136])
+gsp_plotfig('usps_psd',paramplot)
+
+%% Plot some digits
+figure(4)
+paramplot.position = [100,100,260,220];
+img = flipud(rot90(reshape(X(:,1:16),16,16,16)));
+plot_some_images(reshape(img,256,16),16,16,4,4)
+title('USPS digits')
+gsp_plotfig('usps_digits',paramplot)
 
