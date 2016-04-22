@@ -8,8 +8,8 @@ if ~isfield(param,'verbose'), param.verbose = 1; end
 
 
 % Fidelity term for Tikonov an TV
-paramproj.A = @(x) Mask.*x;
-paramproj.At = @(x) Mask.*x;
+paramproj.A = @(x)  bsxfun(@times, Mask, x);
+paramproj.At = @(x)  bsxfun(@times, Mask, x);
 paramproj.y = x0;
 paramproj.epsilon = sqrt(sum(Mask(:)))*sigma;
 paramproj.verbose = param.verbose - 1;
@@ -20,7 +20,7 @@ ffid_classic.eval = @(x) eps;
 % TV regularizer
 paramtv.verbose = param.verbose -1;
 ftv.prox = @(x,T) gsp_prox_tv(x,T,G,paramtv);
-ftv.eval = @(x) gsp_norm_tv(G,x);
+ftv.eval = @(x) sum(gsp_norm_tv(G,x));
 
 % Solve the problem
 [sol, infos] = solvep(x0,{ffid_classic,ftv}, param);

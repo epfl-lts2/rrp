@@ -39,11 +39,15 @@ end
 
 if isnumeric(psd_noise)
     wl = @(x) psd_noise./(psd(x)+eps);
+    fprox = @(x) psd(x)./(psd(x)+psd_noise + eps);
+   
 else
     wl = @(x) psd_noise(x)./(psd(x)+eps);
+    fprox = @(x) psd(x)./(psd(x)+psd_noise(x) + eps);
+
 end
 
-fprox = @(x) 1./(wl(x)+1);
+%fprox = @(x) 1./(wl(x)+1);
 
 % Wiener term 
 fwiener.prox = @(x,T) gsp_filter_analysis(G,fprox,x, param);

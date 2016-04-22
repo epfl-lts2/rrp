@@ -97,8 +97,9 @@ clear
 gsp_reset_seed
 Ng = 20; % Number of samples to construct the graph
 Ns = 20; % Number of samples to estimate the PSD
-Next = 20; % Number of test samples
+Next = 500; % Number of test samples
 verbose = 0; % verbosity
+perform_simulations = 0;
 %% Load the data
 [x, y] = load_usps_full();
 % Data to learn the kernel
@@ -138,99 +139,105 @@ rel_sigma = (0.05:0.05:0.5);
 sigma = norm(X,'fro')/sqrt(numel(X))*rel_sigma;
 % sigma = mean(sqrt(sum(X.^2)))*(0.02:0.04:0.2);
 
-error_tik = zeros(size(X,2),length(sigma));
-error_tv = zeros(size(X,2),length(sigma));
-error_tv_classic = zeros(size(X,2),length(sigma));
-error_tik_classic = zeros(size(X,2),length(sigma));
-error_wiener = zeros(size(X,2),length(sigma));
-error_grm = zeros(size(X,2),length(sigma));
+if perform_simulations
+    error_tik = zeros(size(X,2),length(sigma));
+    error_tv = zeros(size(X,2),length(sigma));
+    error_tv_classic = zeros(size(X,2),length(sigma));
+    error_tik_classic = zeros(size(X,2),length(sigma));
+    error_wiener = zeros(size(X,2),length(sigma));
+    error_grm = zeros(size(X,2),length(sigma));
 
-G2 = gsp_2dgrid(16,16);
-G2 = gsp_compute_fourier_basis(G2);
+    G2 = gsp_2dgrid(16,16);
+    G2 = gsp_compute_fourier_basis(G2);
 
-param.verbose = verbose;
+    param.verbose = verbose;
 
-for jj = 1:length(sigma)
-    jj
-%     wf = @(x) psd(x)./( psd(x)+ sigma(jj)^2 + eps);
-% 
-%     wl = @(x) sigma(jj).^2./(psd(x)+eps);
-%     f = @(x) 1./(wl(x)+1);
+    for jj = 1:length(sigma)
+        jj
+    %     wf = @(x) psd(x)./( psd(x)+ sigma(jj)^2 + eps);
+    % 
+    %     wl = @(x) sigma(jj).^2./(psd(x)+eps);
+    %     f = @(x) 1./(wl(x)+1);
 
-    
 
-    parfor ii = 1:size(X,2)
-        
-        Nsig = ii;
 
-        Mask = rand(G.N,1)>0.5;
+        parfor ii = 1:size(X,2)
 
-        s = X(:,Nsig);
+            Nsig = ii;
 
-        y = s + sigma(jj) * randn(G.N,1);
-        y = Mask.*y;
-        
-        % Classic solution
-        paramproj = struct;
-        paramproj.A = @(x) Mask.*x;
-        paramproj.At = @(x) Mask.*x;
-        paramproj.y = y;
-        paramproj.epsilon = sqrt(sum(Mask(:)))*sigma(jj);
-        paramproj.verbose = verbose -1;
-        ffid = struct;
-        ffid.prox = @(x,T) proj_b2(x,T,paramproj);
-        ffid.eval = @(x) eps;
-       
+            Mask = rand(G.N,1)>0.5;
 
-        ftik_classic = struct;
-        ftik_classic.grad = @(x) 2*G2.L*x;
-        ftik_classic.eval = @(x) gsp_norm_tik(G2,x);
-        ftik_classic.beta = 2*G2.lmax;
-        
-   
-        paramtv_classic = struct;
-        paramtv_classic.verbose = verbose -1;
-        ftvclassic = struct;
-        ftvclassic.prox = @(x,T) reshape(prox_tv(reshape(x,16,16),T,paramtv_classic),[],1);
-        ftvclassic.eval = @(x) norm_tv(reshape(x,16,16));
-        
+            s = X(:,Nsig);
 
-        paramsolver = struct;
-        paramsolver.verbose = verbose;
-        sol_tik_classic = solvep(y,{ffid,ftik_classic},paramsolver);
-        paramsolver.gamma = 0.1;
-        sol_tv_classic = solvep(y,{ffid,ftvclassic},paramsolver);
-        
-        % Graph solution
-        sol_tik = gsp_tik_inpainting_noise(G, y, Mask, sigma(jj), param);
-        sol_tv = gsp_tv_inpainting_noise(G, y, Mask, sigma(jj), param);
-        A = @(x) Mask.*x;
-        At = @(x) Mask.*x;
-        sol_wiener = gsp_wiener_l2(G,y, A, At, psd, sigma(jj).^2, param);
-        sol_grm = grm_estimator(CovM0,Mask,y,sigma(jj).^2);
-        error_tik(ii,jj) = norm(sol_tik - s)/norm(s);
-        error_tv(ii,jj) = norm(sol_tv - s)/norm(s);
-        error_tik_classic(ii,jj) = norm(sol_tik_classic - s)/norm(s);
-        error_tv_classic(ii,jj) = norm(sol_tv_classic - s)/norm(s);
-        error_wiener(ii,jj) = norm(sol_wiener - s)/norm(s);
+            y = s + sigma(jj) * randn(G.N,1);
+            y = Mask.*y;
 
-        error_grm(ii,jj) = norm(sol_grm - s)/norm(s);
+            % Classic solution
+            paramproj = struct;
+            paramproj.A = @(x) Mask.*x;
+            paramproj.At = @(x) Mask.*x;
+            paramproj.y = y;
+            paramproj.epsilon = sqrt(sum(Mask(:)))*sigma(jj);
+            paramproj.verbose = verbose -1;
+            ffid = struct;
+            ffid.prox = @(x,T) proj_b2(x,T,paramproj);
+            ffid.eval = @(x) eps;
+
+
+            ftik_classic = struct;
+            ftik_classic.grad = @(x) 2*G2.L*x;
+            ftik_classic.eval = @(x) gsp_norm_tik(G2,x);
+            ftik_classic.beta = 2*G2.lmax;
+
+
+            paramtv_classic = struct;
+            paramtv_classic.verbose = verbose -1;
+            ftvclassic = struct;
+            ftvclassic.prox = @(x,T) reshape(prox_tv(reshape(x,16,16),T,paramtv_classic),[],1);
+            ftvclassic.eval = @(x) norm_tv(reshape(x,16,16));
+
+
+            paramsolver = struct;
+            paramsolver.verbose = verbose;
+            sol_tik_classic = solvep(y,{ffid,ftik_classic},paramsolver);
+            paramsolver.gamma = 0.1;
+            sol_tv_classic = solvep(y,{ffid,ftvclassic},paramsolver);
+
+            % Graph solution
+            sol_tik = gsp_tik_inpainting_noise(G, y, Mask, sigma(jj), param);
+            sol_tv = gsp_tv_inpainting_noise(G, y, Mask, sigma(jj), param);
+            A = @(x) Mask.*x;
+            At = @(x) Mask.*x;
+            sol_wiener = gsp_wiener_l2(G,y, A, At, psd, sigma(jj).^2, param);
+            sol_grm = grm_estimator(CovM0,Mask,y,sigma(jj).^2);
+            error_tik(ii,jj) = norm(sol_tik - s)/norm(s);
+            error_tv(ii,jj) = norm(sol_tv - s)/norm(s);
+            error_tik_classic(ii,jj) = norm(sol_tik_classic - s)/norm(s);
+            error_tv_classic(ii,jj) = norm(sol_tv_classic - s)/norm(s);
+            error_wiener(ii,jj) = norm(sol_wiener - s)/norm(s);
+
+            error_grm(ii,jj) = norm(sol_grm - s)/norm(s);
+
+
+        end
 
 
     end
+    % Compute mean error
+    merr_tik = mean(error_tik,1);
+    merr_tv = mean(error_tv,1);
+    merr_tik_classic = mean(error_tik_classic,1);
+    merr_tv_classic = mean(error_tv_classic,1);
+    merr_wiener = mean(error_wiener,1);   
+    merr_grm = mean(error_grm,1);   
 
-    
+    save('USPS_experiment.mat', 'merr_tik', 'merr_tv', 'merr_tik_classic',...
+        'merr_tv_classic', 'merr_wiener', 'merr_grm');
+else
+    load('USPS_experiment.mat');
 end
-%% Compute mean error
-merr_tik = mean(error_tik,1);
-merr_tv = mean(error_tv,1);
-merr_tik_classic = mean(error_tik_classic,1);
-merr_tv_classic = mean(error_tv_classic,1);
-merr_wiener = mean(error_wiener,1);   
-merr_grm = mean(error_grm,1);   
-
-save('USPS_eperiment.mat')
-
+    
+    
 %% Plot results
 
 figure(1)

@@ -1,4 +1,4 @@
-%EXPERIMENT_USPS_INPAINTING In-painting on the USPS dataset
+%EXPERIMENT_ORL_INPAINTING In-painting on the ORL dataset
 %
 %   Authors: Nathanael Perraudin and Pierre Vandergheynst
 %
@@ -85,6 +85,8 @@ Next = 100; % Number of test samples (All solutions will be computed at once)
 verbose = 0; % verbosity
 tol =1e-7;  % Tolerance for optimization
 maxit = 1000; % Maximum number of iterations
+perform_simulations = 0;
+
 %% Load the data
 [x, y] = load_orl_full();
 sx = 112;
@@ -114,10 +116,12 @@ param.order = 100;
 param.Nfilt = 200;
 psd = gsp_psd_estimation(G,XS(:,1:Ns),param);
 %%
+
 rel_sigma = (0.05:0.05:0.5);
 sigma = norm(X,'fro')/sqrt(numel(X))* rel_sigma;
 % sigma = mean(sqrt(sum(X.^2)))*(0.02:0.04:0.2);
 
+if perform_simulations
 error_tv_classic = zeros(size(X,2),length(sigma));
 error_tik = zeros(size(X,2),length(sigma));
 error_wiener = zeros(size(X,2),length(sigma));
@@ -185,31 +189,18 @@ for jj = 1:length(sigma)
 
     
 end
-%% Compute mean error
+% Compute mean error
 merr_tik = mean(error_tik,1);
 merr_wiener = mean(error_wiener,1);   
 merr_tv_classic = mean(error_tv_classic,1);   
 
-save('ORL_eperiment_3.mat','merr_tik','merr_wiener','merr_tv_classic','rel_sigma');
-%save('ORL_eperiment.mat','merr_tik','merr_wiener','nfac','sigma');
+save('ORL_eperiment.mat','merr_tik','merr_wiener','merr_tv_classic','rel_sigma');
+else
+    load('ORL_experiment.mat');
+end
 
 %% Plot results
 
-% figure()
-% paramplot.position = [100,100,600,220];
-% imagesc(abs(G.W))
-% colorbar
-% title('Graph weighted adjacency matrix');
-% subplot(122)
-% a = -10;
-% disp = 10*log10(abs(CovMF(1:50,1:50)));
-% disp(disp<a) = a;
-% imagesc(disp)
-% colorbar
-% imagesc(disp)
-% colorbar
-% title('Covariance matrix in Fourier (dB)');
-% gsp_plotfig('usps_cov',paramplot)
 
 paramplot.position = [100,100,300,220];
 

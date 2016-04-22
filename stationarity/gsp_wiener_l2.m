@@ -27,7 +27,13 @@ function [sol, infos] = gsp_wiener_l2(G,y, A, At, psd, psd_noise, param)
 %
 %   Please refer to the function gsp_filter_analysis and solvep to know how
 %   *param* can be set.
-%   
+%
+%   * *param.nu* : bound on the norm of the operator A (default: 1), i.e.
+%
+%     .. ` ||A x||^2 <= nu * ||x||^2 
+%
+%     .. math::  \|A x\|^2 \leq \nu  \|x\|^2   
+%
 %   References: perraudin2016stationary
 
 % Author : Nathanael Perraudin

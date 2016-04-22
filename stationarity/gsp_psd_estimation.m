@@ -20,9 +20,9 @@ function psd = gsp_psd_estimation(G, x, param)
 %   * *param.Nrandom* : Number of random signal (default 10)
 %   * *param.g0* : Initial window. Default:
 %
-%     .. g(x)  = exp(-( Nfilt * x).^2/lmax^2) 
+%     .. g(x)  = exp(-( Nfilt^2 * x).^2/(Nfilt*lmax)^2) 
 %
-%     .. math:: g(x)  = e^{-\frac{(N_f x)^2}{\lambda_{\max}^2}}
+%     .. math:: g(x)  = e^{-\frac{N_f^4 x^2}{(N_f + 1)^2\lambda_{\max}^2}}
 %
 %   Additional parameters are availlable in the function
 %   gsp_filter_analysis.
@@ -51,7 +51,7 @@ end
 if ~isfield(param,'Nfilt'), param.Nfilt = 50; end
 if ~isfield(param,'Nrandom'), param.Nrandom = max(10,size(x,2)); end
 if ~isfield(param,'g0'), 
-    sigma = G.lmax/param.Nfilt;
+    sigma = sqrt(G.lmax/param.Nfilt^2 * (param.Nfilt + 1));
     param.g0 = @(x) exp(-x.^2/sigma^2); 
 
 end
