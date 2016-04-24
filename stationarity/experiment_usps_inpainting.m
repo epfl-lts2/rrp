@@ -234,7 +234,7 @@ if perform_simulations
     save('USPS_experiment.mat', 'merr_tik', 'merr_tv', 'merr_tik_classic',...
         'merr_tv_classic', 'merr_wiener', 'merr_grm');
 else
-    load('USPS_experiment.mat');
+    load USPS_experiment.mat
 end
     
     

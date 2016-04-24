@@ -122,81 +122,81 @@ sigma = norm(X,'fro')/sqrt(numel(X))* rel_sigma;
 % sigma = mean(sqrt(sum(X.^2)))*(0.02:0.04:0.2);
 
 if perform_simulations
-error_tv_classic = zeros(size(X,2),length(sigma));
-error_tik = zeros(size(X,2),length(sigma));
-error_wiener = zeros(size(X,2),length(sigma));
+    error_tv_classic = zeros(size(X,2),length(sigma));
+    error_tik = zeros(size(X,2),length(sigma));
+    error_wiener = zeros(size(X,2),length(sigma));
 
 
-param.verbose = verbose;
-% parpool(6)
-for jj = 1:length(sigma)
-    
+    param.verbose = verbose;
+    % parpool(6)
+    for jj = 1:length(sigma)
 
 
-     parfor ii = 1:size(X,2)
-         if verbose
-             fprintf(['Experiment number',num2str(jj/length(sigma)) '   ,   ',num2str(ii/size(X,2)),'\n']);
+
+         parfor ii = 1:size(X,2)
+             if verbose
+                 fprintf(['Experiment number',num2str(jj/length(sigma)) '   ,   ',num2str(ii/size(X,2)),'\n']);
+             end
+             s = X(:,ii);
+            Mask = rand(G.N,1)>0.25;
+            A = @(x) bsxfun(@times, Mask, x);
+            At = @(x) bsxfun(@times, Mask, x);
+
+
+            y = s + sigma(jj) * randn(G.N,size(s,2));
+            y = A(y);
+
+            % Classic solution
+            paramproj = struct;
+            paramproj.A = A;
+            paramproj.At = At;
+            paramproj.y = y;
+            paramproj.epsilon = sqrt(sum(Mask(:)))*sigma(jj);
+            paramproj.verbose = verbose -1;
+            ffid = struct;
+            ffid.prox = @(x,T) proj_b2(x,T,paramproj);
+            ffid.eval = @(x) eps;
+
+            paramtv_classic = struct;
+            paramtv_classic.verbose = verbose -1;
+            ftvclassic = struct;
+            ftvclassic.prox = @(x,T) reshape(prox_tv(reshape(x,sx,sy,size(x,2)),T,paramtv_classic),sx*sy,size(x,2));
+            ftvclassic.eval = @(x) sum(norm_tv(reshape(x,sx,sy,size(x,2))));
+
+            paramsolver = struct;
+            paramsolver.verbose = verbose;
+            paramsolver.gamma = 0.1;
+            paramsolver.tol = tol;
+            paramsolver.maxit = maxit;
+            sol_tv_classic = solvep(y,{ffid,ftvclassic},paramsolver);
+
+            % Graph solution
+            paramsolver = struct;
+            paramsolver.verbose = verbose;
+            paramsolver.tol = tol;
+            paramsolver.order = 100;
+          paramsolver.maxit = maxit;
+            sol_tik = gsp_tik_inpainting_noise(G, y, Mask, sigma(jj), paramsolver);
+
+
+            sol_wiener = gsp_wiener_l2(G,y, A, At, psd, sigma(jj).^2, paramsolver);
+            error_tik(ii,jj) = norm(sol_tik - s,'fro')/norm(s,'fro');
+            error_wiener(ii,jj) = norm(sol_wiener - s,'fro')/norm(s,'fro');
+            error_tv_classic(ii,jj) = norm(sol_tv_classic - s,'fro')/norm(s,'fro');
+
+
          end
-         s = X(:,ii);
-        Mask = rand(G.N,1)>0.25;
-        A = @(x) bsxfun(@times, Mask, x);
-        At = @(x) bsxfun(@times, Mask, x);
 
 
-        y = s + sigma(jj) * randn(G.N,size(s,2));
-        y = A(y);
-        
-        % Classic solution
-        paramproj = struct;
-        paramproj.A = A;
-        paramproj.At = At;
-        paramproj.y = y;
-        paramproj.epsilon = sqrt(sum(Mask(:)))*sigma(jj);
-        paramproj.verbose = verbose -1;
-        ffid = struct;
-        ffid.prox = @(x,T) proj_b2(x,T,paramproj);
-        ffid.eval = @(x) eps;
-         
-        paramtv_classic = struct;
-        paramtv_classic.verbose = verbose -1;
-        ftvclassic = struct;
-        ftvclassic.prox = @(x,T) reshape(prox_tv(reshape(x,sx,sy,size(x,2)),T,paramtv_classic),sx*sy,size(x,2));
-        ftvclassic.eval = @(x) sum(norm_tv(reshape(x,sx,sy,size(x,2))));
-        
-        paramsolver = struct;
-        paramsolver.verbose = verbose;
-        paramsolver.gamma = 0.1;
-        paramsolver.tol = tol;
-        paramsolver.maxit = maxit;
-        sol_tv_classic = solvep(y,{ffid,ftvclassic},paramsolver);
-        
-        % Graph solution
-        paramsolver = struct;
-        paramsolver.verbose = verbose;
-        paramsolver.tol = tol;
-        paramsolver.order = 100;
-      paramsolver.maxit = maxit;
-        sol_tik = gsp_tik_inpainting_noise(G, y, Mask, sigma(jj), paramsolver);
-        
-        
-        sol_wiener = gsp_wiener_l2(G,y, A, At, psd, sigma(jj).^2, paramsolver);
-        error_tik(ii,jj) = norm(sol_tik - s,'fro')/norm(s,'fro');
-        error_wiener(ii,jj) = norm(sol_wiener - s,'fro')/norm(s,'fro');
-        error_tv_classic(ii,jj) = norm(sol_tv_classic - s,'fro')/norm(s,'fro');
+    end
+    % Compute mean error
+    merr_tik = mean(error_tik,1);
+    merr_wiener = mean(error_wiener,1);   
+    merr_tv_classic = mean(error_tv_classic,1);   
 
-
-     end
-
-    
-end
-% Compute mean error
-merr_tik = mean(error_tik,1);
-merr_wiener = mean(error_wiener,1);   
-merr_tv_classic = mean(error_tv_classic,1);   
-
-save('ORL_eperiment.mat','merr_tik','merr_wiener','merr_tv_classic','rel_sigma');
+    save('data/ORL_eperiment.mat','merr_tik','merr_wiener','merr_tv_classic','rel_sigma');
 else
-    load('ORL_experiment.mat');
+    load ORL_experiment.mat
 end
 
 %% Plot results
