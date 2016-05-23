@@ -45,6 +45,7 @@
 %      GSP_PSD_ESTIMATION - Estimation of the Power spectrum density
 %      GSP_WIENER_OPTIMIZATION -Solve wiener optimization problem
 %      GSP_WIENER_L2 - Solve wiener optimization problem with l2 fidelity term
+%      GSP_WIENER_INPAINTING - Solve wiener in-painting problem
 %
 %  For help, bug reports, suggestions etc. please send email to
 %  nathanael (dot) perraudin (at) epfl (dot) ch

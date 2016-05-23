@@ -155,9 +155,11 @@ for jj = 1:length(sigma)
         % Solve the problems
          sol_tik = gsp_tik_inpainting_noise(G, y, Mask, sigma(jj), param);
          sol_tv = gsp_tv_inpainting_noise(G, y, Mask, sigma(jj), param);
-        A = @(x) Mask.*x;
-        At = @(x) Mask.*x;
-         sol_wiener = gsp_wiener_l2(G,y, A, At, psd, sigma(jj).^2, param);
+%             A = @(x) Mask.*x;
+%             At = @(x) Mask.*x;
+%             sol_wiener = gsp_wiener_l2(G,y, A, At, psd, sigma(jj).^2, param);
+
+        sol_wiener = gsp_wiener_inpainting(G,y,Mask,psd,sigma(jj)^2,param)
         error_tik(ii,jj) = norm(sol_tik - s)/norm(s);
         error_tv(ii,jj) = norm(sol_tv - s)/norm(s);
         error_wiener(ii,jj) = norm(sol_wiener - s)/norm(s);

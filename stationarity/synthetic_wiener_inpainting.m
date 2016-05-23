@@ -153,8 +153,11 @@ for ii = 1:length(percent)
     sol_tik = gsp_tik_inpainting_noise(G, y, Mask, sigma, param);
     sol_tv = gsp_tv_inpainting_noise(G, y, Mask, sigma, param);
 
-    sol_wiener = gsp_wiener_l2(G, y, A, At, psd, sigma^2, param);
-    sol_wiener1 = gsp_wiener_l2(G, y, A, At, psd1, sigma^2, param);
+    sol_wiener = gsp_wiener_inpainting(G,y,Mask,psd,sigma^2,param);
+    sol_wiener1 = gsp_wiener_inpainting(G,y,Mask,psd1,sigma^2,param);
+ 
+%     sol_wiener = gsp_wiener_l2(G, y, A, At, psd, sigma^2, param);
+%     sol_wiener1 = gsp_wiener_l2(G, y, A, At, psd1, sigma^2, param);
     sol_grm = grm_estimator(Cov_exp50,Mask,y,sigma^2);
     error_tik(ii) = norm(sol_tik-s,'fro')/norm(s,'fro');
     error_tv(ii) = norm(sol_tv-s,'fro')/norm(s,'fro');

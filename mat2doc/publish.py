@@ -16,8 +16,8 @@ else:
 project=homefolder+'/'+projectname+'/'
 
 # Configure HTML placement at remote server
-host='nperraud,r2p@web.sourceforge.net'
-www='/home/project-web/r2p/htdocs/'
+#host='nperraud,r2p@web.sourceforge.net'
+#www='/home/project-web/r2p/htdocs/'
 outputdirweb= '~/work/git/website/rrp-website/'
 
 # -------- Configuration of mat2doc ------------
@@ -204,9 +204,9 @@ if 'package' in todo:
         if os.path.isdir('./'+projectname+'-mat/'+el):
             fname=outputdirpackage+el
             #  Copy pdf files if they exists
-            if os.path.isdir('./'+projectname+'-tex/'+el):
-                os.system('ls '+'./'+projectname+'-tex/'+el+'/*.pdf')
-                os.system('cp ./'+projectname+'-tex/'+el+'/*.pdf'+' ./'+projectname+'-mat/'+el+'/.')
+            #if os.path.isdir('./'+projectname+'-tex/'+el):
+            #    os.system('ls '+'./'+projectname+'-tex/'+el+'/*.pdf')
+            #    os.system('cp ./'+projectname+'-tex/'+el+'/*.pdf'+' ./'+projectname+'-mat/'+el+'/.')
             # Create the Unix src package
             os.system('tar -zcvf '+fname+'.tgz -C'+projectname+'-mat/ '+el+'/')
             print projectname+'-mat/'+el+'/'

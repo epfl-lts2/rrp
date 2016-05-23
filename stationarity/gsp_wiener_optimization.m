@@ -38,19 +38,28 @@ if nargin<6
 end
 
 if isnumeric(psd_noise)
+    if sum(abs(psd_noise(:)))==0
+        error('This function cannot solve this problem')
+    end
+    if sum(abs(psd_noise(:)))<1e-10
+        warning('This function can prabaly not solve this case');
+    end
     wl = @(x) psd_noise./(psd(x)+eps);
-    fprox = @(x) psd(x)./(psd(x)+psd_noise + eps);
-   
+    fprox = @(T) @(x) psd(x)./(psd(x)+2*T*psd_noise + eps);           
 else
     wl = @(x) psd_noise(x)./(psd(x)+eps);
-    fprox = @(x) psd(x)./(psd(x)+psd_noise(x) + eps);
+    fprox = @(T) @(x) psd(x)./(psd(x)+2*T*psd_noise(x) + eps);
 
 end
 
 %fprox = @(x) 1./(wl(x)+1);
 
+% In order to be faster
+param.stopping_criterion = 'rel_norm_obj';
+
+
 % Wiener term 
-fwiener.prox = @(x,T) gsp_filter_analysis(G,fprox,x, param);
+fwiener.prox = @(x,T) gsp_filter_analysis(G,fprox(T),x, param);
 fwiener.eval = @(x) 0.5*norm(gsp_filter_analysis(G,wl,x,param),'fro')^2;
 
 % Call the solver

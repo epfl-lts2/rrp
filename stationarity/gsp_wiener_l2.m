@@ -45,12 +45,24 @@ if nargin<7
 end
 
 if ~isfield(param,'nu'), param.nu = 1; end
+if ~isfield(param,'verbose'), param.verbose = 1; end
 
+if isnumeric(psd_noise) && sum(abs(psd_noise))==0
+    paramproj.A = A;
+    paramproj.At = At;
+    paramproj.epsilon = 1e-10;
+    paramproj.y = y;
+    paramproj.tight = 0;
+    paramproj.verbose = param.verbose -1;
+    ffid.prox = @(x,T) proj_b2(x,T,paramproj);
+    ffid.eval = @(x) eps;
 
-% Fidelity term for Wiener optimization
-ffid.grad = @(x) 2*At(A(x)-y);
-ffid.eval = @(x) norm(A(x)-y,'fro')^2;
-ffid.beta = 2*param.nu;
+else
+    % Fidelity term for Wiener optimization
+    ffid.grad = @(x) 2*At(A(x)-y);
+    ffid.eval = @(x) norm(A(x)-y,'fro')^2;
+    ffid.beta = 2*param.nu;
+end
 
 [sol, infos] = gsp_wiener_optimization(G, y, ffid, psd, psd_noise, param);
 

@@ -206,9 +206,11 @@ if perform_simulations
             % Graph solution
             sol_tik = gsp_tik_inpainting_noise(G, y, Mask, sigma(jj), param);
             sol_tv = gsp_tv_inpainting_noise(G, y, Mask, sigma(jj), param);
-            A = @(x) Mask.*x;
-            At = @(x) Mask.*x;
-            sol_wiener = gsp_wiener_l2(G,y, A, At, psd, sigma(jj).^2, param);
+%             A = @(x) Mask.*x;
+%             At = @(x) Mask.*x;
+%             sol_wiener = gsp_wiener_l2(G,y, A, At, psd, sigma(jj).^2, param);
+
+            sol_wiener = gsp_wiener_inpainting(G,y,Mask,psd,sigma(jj)^2,param)
             sol_grm = grm_estimator(CovM0,Mask,y,sigma(jj).^2);
             error_tik(ii,jj) = norm(sol_tik - s)/norm(s);
             error_tv(ii,jj) = norm(sol_tv - s)/norm(s);

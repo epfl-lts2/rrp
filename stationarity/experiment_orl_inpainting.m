@@ -133,7 +133,7 @@ if perform_simulations
 
 
 
-         parfor ii = 1:size(X,2)
+         for ii = 1:size(X,2)
              if verbose
                  fprintf(['Experiment number',num2str(jj/length(sigma)) '   ,   ',num2str(ii/size(X,2)),'\n']);
              end
@@ -179,8 +179,11 @@ if perform_simulations
             sol_tik = gsp_tik_inpainting_noise(G, y, Mask, sigma(jj), paramsolver);
 
 
-            sol_wiener = gsp_wiener_l2(G,y, A, At, psd, sigma(jj).^2, paramsolver);
-            error_tik(ii,jj) = norm(sol_tik - s,'fro')/norm(s,'fro');
+
+%             sol_wiener = gsp_wiener_l2(G,y, A, At, psd, sigma(jj).^2, paramsolver);
+
+            sol_wiener = gsp_wiener_inpainting(G,y,Mask,psd,sigma(jj)^2,paramsolver);
+             error_tik(ii,jj) = norm(sol_tik - s,'fro')/norm(s,'fro');
             error_wiener(ii,jj) = norm(sol_wiener - s,'fro')/norm(s,'fro');
             error_tv_classic(ii,jj) = norm(sol_tv_classic - s,'fro')/norm(s,'fro');
 
@@ -200,7 +203,6 @@ else
 end
 
 %% Plot results
-
 
 paramplot.position = [100,100,300,220];
 
