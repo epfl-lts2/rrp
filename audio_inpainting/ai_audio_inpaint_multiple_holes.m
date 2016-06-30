@@ -10,7 +10,9 @@ function srec = ai_audio_inpaint_multiple_holes(shole, fs, hole_interval ,param)
 %   Output parameters:
 %       srec        : recomposed signal
 %  
- 
+%   This function inpaint multiples holes in an audio signal.
+%
+
 % Authors: Nathanael Perraudin, Nicki Hollighaus
 % Date   : June 2016
  

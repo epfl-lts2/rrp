@@ -14,10 +14,9 @@
 %   selected through an optimization scheme and smoothly inserted into the
 %   gap.
 %
-%   * Paper   :    Audio inpainting with similarity graphs
-%   * Authors :    Nathanael Perraudin, Nicki Holighaus, Piotr Majdak, 
-%                  Peter Balazs and Pierre Vandergheynst
-%   * Date    :    June 2016 
+%   * Paper   : Audio inpainting with similarity graphs
+%   * Authors : Nathanael Perraudin, Nicki Holighaus, Piotr Majdak, Peter Balazs and Pierre Vandergheynst 
+%   * Date    : June 2016 
 %
 %
 %   Contents
@@ -28,8 +27,8 @@
 %   functions:
 %
 %      AI_AUDIO_INPAINT     - Inpaint an audio signal
-%      AI_AUDIO_INPAINT_MULTIPLE_HOLES - Inpaint an audio signal with multiple holes
 %      AI_TIME_AUDIO_GRAPH  - Create a graph of similarities from an audio signal
+%      AI_AUDIO_INPAINT_MULTIPLE_HOLES - Inpaint an audio signal with multiple holes
 %      AI_PLOT_GRAPH        - Plot the transitions graph
 %      AI_START             - Start the audio inpainting box
 %      AI_COMPUTE_FEATURES  - Compute a time-frequency features matrix
@@ -37,4 +36,5 @@
 %
 %  For help, bug reports, suggestions etc. please send email to
 %  nathanael (dot) perraudin (at) epfl (dot) ch
+
 
