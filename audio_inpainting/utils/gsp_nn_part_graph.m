@@ -33,9 +33,8 @@ function [ G ] = gsp_nn_part_graph( X,ind1,ind2, param )
 %   See also: gsp_nn_graph gsp_nn_distanz
 %
 
-% Author: Johan Paratte, Nathanael Perraudin
-% Date: 16 June 2014
-% Testing: test_rmse
+% Author: Nathanael Perraudin
+
 
     if nargin < 4
     % Define parameters

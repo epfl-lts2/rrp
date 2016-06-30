@@ -1,2 +1,4 @@
 3rdparty/*
 image_source_separation/3rdparty/*
+image_inpainting/audioread/*
+image_inpainting/3rdparty/*
