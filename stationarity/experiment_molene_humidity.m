@@ -32,13 +32,15 @@
 %   wish to ascertain that our method still performs better than the two
 %   other models (TV and Tikonov) on real measurements. The graph is built
 %   from the coordinates of the weather stations by connecting all the
-%   neighbours in a given radius with a weight function $w(i,j) = e^{-d^2\tau}$ 
-%   where $\tau$ is adjusted to obtain a average degree around $3$
-%   ($\tau$, however, is not a sensitive parameter). For our experiments,
-%   we consider every time step as an independent realization of a WSS
-%   process. As sole pre-processing, we remove the mean of the temperature.
-%   Thanks to the $744$ time observation, we can estimate the covariance
-%   matrix and check wether the process is stationary on the graph.
+%   neighbours in a given radius with a weight function $w(i,j) =
+%   e^{-d^2\tau}$ where $\tau$ is adjusted to obtain a average degree
+%   around $3$ ($\tau$, however, is not a sensitive parameter). For our
+%   experiments, we consider every time step as an independent realization
+%   of a WSS process. As sole pre-processing, we remove the temperature
+%   mean of each station independently. This is equivalent to removing the
+%   first moment. Thanks to the $744$ time observation, we can estimate the
+%   covariance matrix and check wether the process is stationary on the
+%   graph.
 %
 %
 %   This experiment
@@ -47,16 +49,17 @@
 %   The result of the experiment with humidity is displayed in Figures 1
 %   and 2. The covariance matrix shows a strong correlation between the
 %   different weather stations. Diagonalizing it with the Fourier basis of
-%   the graph assesses that the meteorological instances are more or less
-%   stationary within the distance graph by highlighting its diagonal
-%   characteristic. Moreover this diagonal gives us access to the PSD of
-%   the data. In our experiment, we solve an in-painting/de-noising problem
-%   with a mask operator covering 50 per cent of measurements and various
-%   amount of noise. We then average the result over $744$ experiments
-%   (corresponding to the $744$ observations) to obtain the curves
-%   displayed in Figure 2. We observe that Wiener optimization performs
-%   significantly better when the noise level is high and equivalently well
-%   to the two other methods for low noise level.
+%   the graph shows that the meteorological instances are not really
+%   stationary within the distance graph as the resulting matrix is not
+%   really diagonal. However, even in this case, Wiener optimization still
+%   outperforms graph TV and Tikhonov models, showing the robustness of the
+%   proposed method. In our experiment, we solve an in-painting/de-noising
+%   problem with a mask operator covering 50 per cent of measurements and
+%   various amount of noise. We then average the result over $744$
+%   experiments (corresponding to the $744$ observations) to obtain the
+%   curves displayed in Figure 2. We observe that Wiener optimization
+%   performs significantly better when the noise level is high and
+%   equivalently well to the two other methods for low noise level.
 %
 %   .. figure::
 %
@@ -83,10 +86,10 @@
 close all
 clear
 gsp_reset_seed(0)
-load('meteo_molene_u.mat');
+load meteo_molene_u.mat;
 
 verbose = 0;
-
+do_experiment = 0;
 
 %% Prepare the data
 x = info{4};
@@ -100,7 +103,9 @@ coords = [x,y,zp];
 
 % Remove the mean to the data (alternatively we could remove 273)
 X = value;
-X = X - mean(X(:));
+%X = X - mean(X(:));
+mX = mean(X,2);
+X = X - repmat(mX,1,size(X,2));
 %% Graph creation
 
 param.k = 5;
@@ -127,55 +132,61 @@ psd = gsp_experimental_psd(G,CovM);
 
 
 %% Experiment
-sigma = mean(sqrt(sum(X.^2)))*(0.02:0.02:0.2);
+if do_experiment
+    sigma = mean(sqrt(sum(X.^2)))*(0.02:0.02:0.2);
 
-error_tik = zeros(size(X,2),length(sigma));
-error_tv = zeros(size(X,2),length(sigma));
-error_wiener = zeros(size(X,2),length(sigma));
+    snr_tik = zeros(size(X,2),length(sigma));
+    snr_tv = zeros(size(X,2),length(sigma));
+    error_wiener = zeros(size(X,2),length(sigma));
 
-param.verbose = verbose;
+    param.verbose = verbose;
 
-for jj = 1:length(sigma)
-    jj
+    for jj = 1:length(sigma)
+        jj
 
-    
 
-    parfor ii = 1:size(X,2)
 
-        Nsig = ii;
+        parfor ii = 1:size(X,2)
 
-        Mask = rand(G.N,1)>0.5;  %#ok<PFBNS>
+            Nsig = ii;
 
-        s = X(:,Nsig);  %#ok<PFBNS>
+            Mask = rand(G.N,1)>0.5;  %#ok<PFBNS>
 
-        y = s + sigma(jj) * randn(G.N,1); %#ok<PFBNS>
-        y = Mask.*y;
-        
+            s = X(:,Nsig);  %#ok<PFBNS>
 
-        % Solve the problems
-         sol_tik = gsp_tik_inpainting_noise(G, y, Mask, sigma(jj), param);
-         sol_tv = gsp_tv_inpainting_noise(G, y, Mask, sigma(jj), param);
-%             A = @(x) Mask.*x;
-%             At = @(x) Mask.*x;
-%             sol_wiener = gsp_wiener_l2(G,y, A, At, psd, sigma(jj).^2, param);
+            y = s + sigma(jj) * randn(G.N,1); %#ok<PFBNS>
+            y = Mask.*y;
 
-        sol_wiener = gsp_wiener_inpainting(G,y,Mask,psd,sigma(jj)^2,param)
-        error_tik(ii,jj) = norm(sol_tik - s)/norm(s);
-        error_tv(ii,jj) = norm(sol_tv - s)/norm(s);
-        error_wiener(ii,jj) = norm(sol_wiener - s)/norm(s);
 
+            % Solve the problems
+             sol_tik = gsp_tik_inpainting_noise(G, y, Mask, sigma(jj), param);
+             sol_tv = gsp_tv_inpainting_noise(G, y, Mask, sigma(jj), param);
+    %             A = @(x) Mask.*x;
+    %             At = @(x) Mask.*x;
+    %             sol_wiener = gsp_wiener_l2(G,y, A, At, psd, sigma(jj).^2, param);
+
+            sol_wiener = gsp_wiener_inpainting(G,y,Mask,psd,sigma(jj)^2,param)
+            snr_tik(ii,jj) = snr(s,sol_tik);
+            snr_tv(ii,jj) = snr(s,sol_tv);
+            snr_wiener(ii,jj) = snr(s,sol_wiener);
+
+
+
+        end
 
 
     end
+    %% Compute mean errors
 
-    
+    msnr_tik = mean(snr_tik,1);
+    msnr_tv = mean(snr_tv,1);
+    msnr_wiener = mean(snr_wiener,1);
+    msnr_y = 10*log10(var(X(:))./sigma.^2);
+
+    save('data/molene_h_results.mat','msnr_tik','msnr_tv','msnr_wiener','msnr_y');
+else
+    load('data/molene_h_results.mat')
 end
-%% Compute mean errors
-
-merr_tik = mean(error_tik,1);
-merr_tv = mean(error_tv,1);
-merr_wiener = mean(error_wiener,1);
-
 %% Plot results
 
 figure(1)
@@ -195,13 +206,13 @@ gsp_plotfig('humidity_cov',paramplot)
 nfac = mean(sqrt(sum(X.^2)));
 figure(2)
 paramplot.position = [100,100,300,220];
-plot(sigma/nfac,merr_tik,sigma/nfac,merr_tv,sigma/nfac,merr_wiener,...
+plot(msnr_y,msnr_tik,msnr_y,msnr_tv,msnr_y,msnr_wiener,...
     'LineWidth',2)
-ylabel('Relative error');
-xlabel('Noise level');
+ylabel('Output SNR (dB)');
+xlabel('Input SNR (dB)');
 axis tight;
-title('Inpainting relative error')
-legend('Tikonov','TV','Wiener','Location','NorthWest');
+title('Inpainting error')
+legend('Tikhonov','TV','Wiener','Location','NorthWest');
 gsp_plotfig('humidity_inpainting_errors',paramplot)
 
 

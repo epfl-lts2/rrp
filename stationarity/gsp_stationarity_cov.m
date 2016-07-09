@@ -17,7 +17,7 @@ function C = gsp_stationarity_cov(X)
 
 Nso = size(X,2);
 X = X - mean(X(:));
-C = X*X'/Nso;
+C = X*X'/(Nso-1);
 
 
 end

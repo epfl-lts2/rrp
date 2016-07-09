@@ -87,45 +87,50 @@ t = tic;
 param.Nfilt = 10;
 psd10 = gsp_psd_estimation(G,x,param);
 t1 = toc(t);
+
 t = tic;
-param.Nfilt = 15;
-psd15 = gsp_psd_estimation(G,x,param);
-t2 = toc(t);
-t = tic;
+param.order = 30;
 param.Nfilt = 30;
 psd30 = gsp_psd_estimation(G,x,param);
 t3 = toc(t);
-
+%%
 t = tic;
-param.order = 100;
+param.order = 30;
 param.Nfilt = 100;
 psd100 = gsp_psd_estimation(G,x,param);
 t4 = toc(t);
-
+%%
+% t = tic;
+% param.Nfilt = 500;
+% psd500 = gsp_psd_estimation(G,x,param);
+% t2 = toc(t);
 %% Plot the result
-x = 0 :0.01: G.lmax;
+lambda = 0 :0.01: G.lmax;
 figure(1)
 paramplot.position = [100 100 300 200];
-h = plot(x,psd100(x),'c', ...
-    x,s(x),'k',...
-    x,psd10(x),'b',...
-    x,psd15(x),'g',...
-    x,psd30(x),'r:'... 
+h = plot(lambda,s(lambda),'k',...
+    lambda,psd100(lambda),'r:', ...
+    lambda,psd30(lambda),'g--',... 
+    lambda,psd10(lambda),'b'...   
     );
+%     lambda,psd500(lambda),'g',...
+
 %
 h(1).LineWidth = 2;
 h(2).LineWidth = 2;
 h(3).LineWidth = 2;
 h(4).LineWidth = 2;
-h(5).LineWidth = 2;
-hl = legend(['Est. M = 100 filters - ',num2str(t4,3), ' s.'],...
-     'Real PSD',...
-     ['Est. M = 10 filters - ',num2str(t1,3), ' s.'],...
-     ['Est. M = 20 filters - ',num2str(t2,3), ' s.'],...
-     ['Est. M = 30 filters - ',num2str(t3,3), ' s.']... 
+% h(5).LineWidth = 2;
+hl = legend('Real PSD',...
+     ['Est. M = 100 filters - ',num2str(t4,3), ' s.'],...
+     ['Est. M = 30 filters - ',num2str(t3,3), ' s.'],... 
+     ['Est. M = 10 filters - ',num2str(t1,3), ' s.']...
       );
+%      ['Est. M = 500 filters - ',num2str(t2,3), ' s.'],...
+
 set(hl,'Position', [0.3133 0.5175 0.6483 0.3550])
 axis tight
+xlabel('\lambda (graph spectral domain)')
 title(['PSD estimation using ',num2str(Ndata),' signal'])
 gsp_plotfig('psd_estimation',paramplot)
 

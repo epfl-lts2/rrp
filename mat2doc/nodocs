@@ -2,3 +2,4 @@
 image_source_separation/3rdparty/*
 audio_inpainting/audioread/*
 audio_inpainting/3rdparty/*
+stationarity/subtightplot.m

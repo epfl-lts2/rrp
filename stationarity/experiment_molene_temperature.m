@@ -101,7 +101,7 @@ global SAVE
 
 verbose = 0;
 gsp_reset_seed(0)
-
+do_experiment = 1;
 %% Prepare the data
 x = info{4};
 y = info{3};
@@ -114,7 +114,9 @@ coords = [x,y,zp];
 
 % Remove the mean to the data (alternatively we could remove 273)
 X = value;
-X = X - mean(X(:));
+% X = X - mean(X(:));
+mX = mean(X,2);
+X = X-repmat(mX,1,size(X,2));
 
 %% Graph creation
 
@@ -143,56 +145,64 @@ psd = gsp_experimental_psd(G,CovM);
 
 
 %% Experiment
-sigma = mean(sqrt(sum(X.^2)))*(0.02:0.02:0.2);
 
-error_tik = zeros(size(X,2),length(sigma));
-error_tv = zeros(size(X,2),length(sigma));
-error_wiener = zeros(size(X,2),length(sigma));
+if do_experiment
+    percent = 0.2:0.1:0.8;
+    sigma = 0.2;
+    snr_tik = zeros(size(X,2),length(percent));
+    snr_tv = zeros(size(X,2),length(percent));
+    snr_wiener = zeros(size(X,2),length(percent));
 
-param.verbose = verbose;
+    param.verbose = verbose;
 
 
 
-for jj = 1:length(sigma)
-    jj
+    for jj = 1:length(percent)
+        jj
 
-    
 
-    parfor ii = 1:size(X,2)
 
-       Nsig = ii;
+        parfor ii = 1:size(X,2) 
 
-        Mask = rand(G.N,1)>0.5;  %#ok<PFBNS>
+           Nsig = ii;
 
-        s = X(:,Nsig);  %#ok<PFBNS>
+            Mask = rand(G.N,1)>percent(jj);  %#ok<PFBNS>
 
-        y = s + sigma(jj) * randn(G.N,1); %#ok<PFBNS>
-        y = Mask.*y;
-        
+            s = X(:,Nsig);  %#ok<PFBNS>
 
-        % Solve the problems
-        sol_tik = gsp_tik_inpainting_noise(G, y, Mask, sigma(jj), param);
-        sol_tv = gsp_tv_inpainting_noise(G, y, Mask, sigma(jj), param);
-%             A = @(x) Mask.*x;
-%             At = @(x) Mask.*x;
-%             sol_wiener = gsp_wiener_l2(G,y, A, At, psd, sigma(jj).^2, param);
+            y = s + sigma * randn(G.N,1); %#ok<PFBNS>
+            y = Mask.*y;
 
-        sol_wiener = gsp_wiener_inpainting(G,y,Mask,psd,sigma(jj)^2,param)
-        error_tik(ii,jj) = norm(sol_tik - s)/norm(s);
-        error_tv(ii,jj) = norm(sol_tv - s)/norm(s);
-        error_wiener(ii,jj) = norm(sol_wiener - s)/norm(s);
+
+            % Solve the problems
+            sol_tik = gsp_tik_inpainting_noise(G, y, Mask, sigma, param);
+            sol_tv = gsp_tv_inpainting_noise(G, y, Mask, sigma, param);
+    %             A = @(x) Mask.*x;
+    %             At = @(x) Mask.*x;
+    %             sol_wiener = gsp_wiener_l2(G,y, A, At, psd, sigma(jj).^2, param);
+
+            sol_wiener = gsp_wiener_inpainting(G,y,Mask,psd,sigma^2,param)
+            snr_tik(ii,jj) = snr(s,sol_tik);
+            snr_tv(ii,jj) = snr(s,sol_tv);
+            snr_wiener(ii,jj) = snr(s,sol_wiener);
+            snr_in(ii,jj) = snr(s(logical(Mask)),y(logical(Mask)));
+
+
+        end
 
 
     end
 
-    
+    %% Compute mean errors
+
+    msnr_tik = mean(snr_tik,1);
+    msnr_tv = mean(snr_tv,1);
+    msnr_wiener = mean(snr_wiener,1);
+    msnr_in = mean(snr_in(~isnan(snr_in)));
+    save('data/molene_t_results.mat','msnr_tik','msnr_tv','msnr_wiener','percent','msnr_in');
+else
+    load('data/molene_t_results.mat')
 end
-
-%% Compute mean errors
-
-merr_tik = mean(error_tik,1);
-merr_tv = mean(error_tv,1);
-merr_wiener = mean(error_wiener,1);
 
 %% Plot results
 paramplot.save = SAVE; 
@@ -216,13 +226,13 @@ gsp_plotfig('temperature_cov',paramplot)
 nfac = mean(sqrt(sum(X.^2)));
 figure(2)
 paramplot.position = [100,100,300,220];
-plot(sigma/nfac,merr_tik,sigma/nfac,merr_tv,sigma/nfac,merr_wiener,...
+plot(percent*100,msnr_tik,percent*100,msnr_tv,percent*100,msnr_wiener,...
     'LineWidth',2)
-ylabel('Relative error');
-xlabel('Noise level');
+ylabel('Output SNR (dB)');
+xlabel('Percent of missing values');
 axis tight;
-title('Inpainting relative error')
-legend('Tikonov','TV','Wiener','Location','NorthWest');
+title('Inpainting error')
+legend('Tikhonov','TV','Wiener','Location','Best')
 gsp_plotfig('temperature_inpainting_errors',paramplot)
 
 figure(3)
@@ -231,7 +241,7 @@ title(['Temperature over time for ',info{2}(1)]);
 axis tight
 xlabel('Days')
 ylabel('Temperature in degree C')
-gsp_plotfig('humidity_time',paramplot)
+gsp_plotfig('temperature_time',paramplot)
 
 
 figure(4)

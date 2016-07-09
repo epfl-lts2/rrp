@@ -23,9 +23,9 @@
 %   --------
 %
 %   A demo is availlable throught the *file ai_demo_inpaint*. The function
-%   *ai_conf* contains the default parameters. The package includes the
-%   functions:
+%   *ai_conf* contains the default parameters. 
 %
+%   Audio inpainting functions
 %      AI_AUDIO_INPAINT     - Inpaint an audio signal
 %      AI_TIME_AUDIO_GRAPH  - Create a graph of similarities from an audio signal
 %      AI_AUDIO_INPAINT_MULTIPLE_HOLES - Inpaint an audio signal with multiple holes

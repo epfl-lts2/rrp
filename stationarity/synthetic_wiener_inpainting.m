@@ -123,11 +123,11 @@ f1 = @(x) 1./(wl1(x)+1);
 
 percent = 5:5:95;
 
-error_tik = zeros(length(percent),1);
-error_tv = zeros(length(percent),1);
-error_wiener = zeros(length(percent),1);
-error_wiener1 = zeros(length(percent),1);
-error_grm = zeros(length(percent),1);
+snr_tik = zeros(length(percent),1);
+snr_tv = zeros(length(percent),1);
+snr_wiener = zeros(length(percent),1);
+snr_wiener1 = zeros(length(percent),1);
+snr_grm = zeros(length(percent),1);
 % Generate M new signals
 s = gsp_filter(G,g,randn(N,M));
 y2 = s+ sigma *randn(N,M);
@@ -159,12 +159,12 @@ for ii = 1:length(percent)
 %     sol_wiener = gsp_wiener_l2(G, y, A, At, psd, sigma^2, param);
 %     sol_wiener1 = gsp_wiener_l2(G, y, A, At, psd1, sigma^2, param);
     sol_grm = grm_estimator(Cov_exp50,Mask,y,sigma^2);
-    error_tik(ii) = norm(sol_tik-s,'fro')/norm(s,'fro');
-    error_tv(ii) = norm(sol_tv-s,'fro')/norm(s,'fro');
+    snr_tik(ii) = snr(s,sol_tik);
+    snr_tv(ii) = snr(s,sol_tv);
 
-    error_wiener(ii) = norm(sol_wiener-s,'fro')/norm(s,'fro');
-    error_wiener1(ii) = norm(sol_wiener1-s,'fro')/norm(s,'fro');
-    error_grm(ii) = norm(sol_grm-s,'fro')/norm(s,'fro');
+    snr_wiener(ii) = snr(s,sol_wiener);
+    snr_wiener1(ii) = snr(s,sol_wiener1);
+    snr_grm(ii) = snr(s,sol_grm);
 
 end
 %% Plot the result
@@ -188,13 +188,13 @@ title('Wiener filters')
 gsp_plotfig('approx_wiener_filter',paramplot);
 
 figure(3)
-paramplot.position = [100,100,450,315];
-plot(percent,error_tik,percent,error_tv,percent,error_wiener,percent,error_wiener1,percent,error_grm,'--','LineWidth',2)
+paramplot.position = [100,100,600,220];
+plot(percent,snr_tik,percent,snr_tv,percent,snr_wiener,percent,snr_wiener1,percent,snr_grm,'--','LineWidth',2)
 xlabel('Percent of measurements');
-ylabel('Relative error');
+ylabel('Output SNR (dB)');
 axis tight;
-title('In-painting relative error')
-legend('Tikonov','TV','Wiener, exact PSD','Wiener, PSD from 1 meas.','Gaussian MAP from 50 meas.');
+title('In-painting error')
+legend('Tikhonov','TV','Wiener, exact PSD','Wiener, PSD from 1 meas.','Gaussian MAP from 50 meas.','Location','Best');
 gsp_plotfig('synthetic_inpainting_errors',paramplot)
 
 

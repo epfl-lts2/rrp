@@ -82,9 +82,9 @@ gsp_reset_seed(0)
 Ng = 300; % Number of samples to construct the graph
 Ns = 100; % Number of samples to estimate the PSD
 Next = 100; % Number of test samples (All solutions will be computed at once)
-verbose = 0; % verbosity
+verbose = 1; % verbosity
 tol =1e-7;  % Tolerance for optimization
-maxit = 1000; % Maximum number of iterations
+maxit = 500; % Maximum number of iterations
 perform_simulations = 0;
 
 %% Load the data
@@ -97,53 +97,61 @@ x = x(:,randperm(400));
 XS = x(:,1:Ng);
 % Data to perform the experiment
 X = x(:,Ng:(Ng+Next));
-X = X - mean(x(:));
-XS = XS - mean(x(:));
+mX = mean(X,2);
+X = X - repmat(mX,1,size(X,2));
+XS = XS - repmat(mX,1,size(XS,2));
+
+% X = X - mean(x(:));
+% XS = XS - mean(x(:));
 %% Graph creation from the data X0
 param.use_flann = 1;
-param.k = 10;
+param.k = 20;
+param.sigma = 2000;
 %G = gsp_nn_graph(XS,param);
 %G = gsp_2dgrid(112,92);
 parampatch.nnparam = param;
- G = gsp_patch_graph(reshape(XS,sx,sy,Ng),parampatch);
+G = gsp_patch_graph(reshape(XS,sx,sy,Ng),parampatch);
+% G = gsp_create_laplacian(G,'combinatorial');
 G = gsp_estimate_lmax(G);
 % G = gsp_adj2vec(G);
-
-
-%% Estimate the PSD
-
-param.order = 100;
-param.Nfilt = 200;
-psd = gsp_psd_estimation(G,XS(:,1:Ns),param);
 %%
-
-rel_sigma = (0.05:0.05:0.5);
-sigma = norm(X,'fro')/sqrt(numel(X))* rel_sigma;
-% sigma = mean(sqrt(sum(X.^2)))*(0.02:0.04:0.2);
-
 if perform_simulations
-    error_tv_classic = zeros(size(X,2),length(sigma));
-    error_tik = zeros(size(X,2),length(sigma));
-    error_wiener = zeros(size(X,2),length(sigma));
+    %% Estimate the PSD
+    param.order = 100;
+    param.Nfilt = 200;
+    psd = gsp_psd_estimation(G,XS(:,1:Ns),param);
+    %%
+
+%     rel_sigma = (0.05:0.05:0.5);
+%     sigma = norm(X,'fro')/sqrt(numel(X))* rel_sigma;
+    sigma = 0.05;
+    percent = 0.25:0.1:0.75;
+    snr_tv_classic = zeros(size(X,2),length(sigma));
+    snr_tik = zeros(size(X,2),length(sigma));
+    snr_wiener = zeros(size(X,2),length(sigma));    
+    snr_tv_classic2 = zeros(size(X,2),length(sigma));
+    snr_tik2 = zeros(size(X,2),length(sigma));
+    snr_wiener2 = zeros(size(X,2),length(sigma));
+    snr_y = zeros(size(X,2),length(sigma));
 
 
     param.verbose = verbose;
     % parpool(6)
-    for jj = 1:length(sigma)
+    for jj = 1:length(percent)
 
 
 
          for ii = 1:size(X,2)
              if verbose
-                 fprintf(['Experiment number',num2str(jj/length(sigma)) '   ,   ',num2str(ii/size(X,2)),'\n']);
+                 fprintf(['Experiment numbers: ',num2str(jj/length(percent)) '   ,   ',num2str(ii/size(X,2)),'\n']);
              end
              s = X(:,ii);
-            Mask = rand(G.N,1)>0.25;
+            Mask = rand(G.N,1)>percent(jj);
             A = @(x) bsxfun(@times, Mask, x);
             At = @(x) bsxfun(@times, Mask, x);
+            
 
-
-            y = s + sigma(jj) * randn(G.N,size(s,2));
+            y = s + sigma * randn(G.N,size(s,2));
             y = A(y);
 
             % Classic solution
@@ -151,7 +159,8 @@ if perform_simulations
             paramproj.A = A;
             paramproj.At = At;
             paramproj.y = y;
-            paramproj.epsilon = sqrt(sum(Mask(:)))*sigma(jj);
+            paramproj.epsilon = sqrt(sum(Mask(:)))*sigma;
+            paramproj.tight = 1;
             paramproj.verbose = verbose -1;
             ffid = struct;
             ffid.prox = @(x,T) proj_b2(x,T,paramproj);
@@ -160,44 +169,56 @@ if perform_simulations
             paramtv_classic = struct;
             paramtv_classic.verbose = verbose -1;
             ftvclassic = struct;
-            ftvclassic.prox = @(x,T) reshape(prox_tv(reshape(x,sx,sy,size(x,2)),T,paramtv_classic),sx*sy,size(x,2));
-            ftvclassic.eval = @(x) sum(norm_tv(reshape(x,sx,sy,size(x,2))));
+            ftvclassic.prox = @(x,T) reshape(prox_tv(reshape(x+mX,sx,sy,size(x,2)),T,paramtv_classic),sx*sy,size(x,2))-mX;
+            ftvclassic.eval = @(x) sum(norm_tv(reshape(x+mX,sx,sy,size(x,2))));
 
             paramsolver = struct;
             paramsolver.verbose = verbose;
-            paramsolver.gamma = 0.1;
             paramsolver.tol = tol;
             paramsolver.maxit = maxit;
+            paramsolver.gamma = 0.1;
             sol_tv_classic = solvep(y,{ffid,ftvclassic},paramsolver);
 
             % Graph solution
             paramsolver = struct;
             paramsolver.verbose = verbose;
             paramsolver.tol = tol;
-            paramsolver.order = 100;
-          paramsolver.maxit = maxit;
-            sol_tik = gsp_tik_inpainting_noise(G, y, Mask, sigma(jj), paramsolver);
+            paramsolver.order = 40;
+            paramsolver.maxit = maxit;
+            sol_tik = gsp_tik_inpainting_noise(G, y, Mask, sigma, paramsolver);
 
 
 
-%             sol_wiener = gsp_wiener_l2(G,y, A, At, psd, sigma(jj).^2, paramsolver);
 
-            sol_wiener = gsp_wiener_inpainting(G,y,Mask,psd,sigma(jj)^2,paramsolver);
-             error_tik(ii,jj) = norm(sol_tik - s,'fro')/norm(s,'fro');
-            error_wiener(ii,jj) = norm(sol_wiener - s,'fro')/norm(s,'fro');
-            error_tv_classic(ii,jj) = norm(sol_tv_classic - s,'fro')/norm(s,'fro');
-
+            sol_wiener = gsp_wiener_inpainting(G,y,Mask,psd,sigma^2,paramsolver);
+            
+            snr_mask = @(x,y,Mask) snr(x(logical(1-Mask)),y(logical(1-Mask)));
+            snr_tik2(ii,jj) = snr_mask(s,sol_tik,Mask);
+            snr_tv_classic2(ii,jj) = snr_mask(s,sol_tv_classic,Mask);
+            snr_wiener2(ii,jj) = snr_mask(s,sol_wiener,Mask);
+            snr_tik(ii,jj) = snr(s,sol_tik);
+            snr_tv_classic(ii,jj) = snr(s,sol_tv_classic);
+            snr_wiener(ii,jj) = snr(s,sol_wiener);
+            snr_y(ii,jj) = snr(s(logical(Mask)),y(logical(Mask)));
+            snr(s,sol_tv_classic)
+            snr(s,sol_wiener)
 
          end
 
 
     end
     % Compute mean error
-    merr_tik = mean(error_tik,1);
-    merr_wiener = mean(error_wiener,1);   
-    merr_tv_classic = mean(error_tv_classic,1);   
+    msnr_tik = mean(snr_tik,1);
+    msnr_wiener = mean(snr_wiener,1);   
+    msnr_tv_classic = mean(snr_tv_classic,1);       
+    msnr_tik2 = mean(snr_tik2,1);
+    msnr_wiener2 = mean(snr_wiener2,1);   
+    msnr_tv_classic2 = mean(snr_tv_classic2,1);   
+    msnr_y = mean(snr_y,1);   
 
-    save('data/ORL_eperiment.mat','merr_tik','merr_wiener','merr_tv_classic','rel_sigma');
+    save('data/ORL_experiment_nm.mat','msnr_tik','msnr_wiener','msnr_tv_classic','percent','psd',...
+        'msnr_tik2','msnr_wiener2','msnr_tv_classic2','snr_y');
+    
 else
     load ORL_experiment.mat
 end
@@ -214,22 +235,22 @@ gsp_plotfig('orl_example',paramplot)
 paramplot.position = [100,100,300,220];
 
 figure(2)
-plot(rel_sigma, merr_tik, ...
-    rel_sigma, merr_tv_classic, ...
-    rel_sigma, merr_wiener,...
+plot(percent, msnr_tik2, ...
+    percent, msnr_tv_classic2, ...
+    percent, msnr_wiener2,...
     'LineWidth',2);
-ylabel('Relative error');
-xlabel('Noise level');
+ylabel('SNR (dB)');
+xlabel('Percent of missing values');
 axis tight;
-title('Inpainting relative error')
-legend('Graph Tikonov','Classic TV','Wiener optimization','Location','SouthEast');
+title('SNR output')
+legend('Graph Tikhonov','Classic TV','Wiener optimization','Location','Best');
 gsp_plotfig('orl_inpainting_errors',paramplot)
 
 %% Perform a simple experiment
 
 s = X(:,5);
-Mask = rand(G.N,1)>0.25;
-A = @(x) bsxfun(@times, Mask, x);
+Mask = rand(G.N,1)>0.5;
+A  = @(x) bsxfun(@times, Mask, x);
 At = @(x) bsxfun(@times, Mask, x);
 sigma_u = 0.05;
 y1 = s + sigma_u * randn(G.N,size(s,2));
@@ -242,6 +263,7 @@ paramproj.At = At;
 paramproj.y = y;
 paramproj.epsilon = sqrt(sum(Mask(:)))*sigma_u;
 paramproj.verbose = verbose -1;
+paramproj.tight = 1;
 ffid = struct;
 ffid.prox = @(x,T) proj_b2(x,T,paramproj);
 ffid.eval = @(x) eps;
@@ -249,93 +271,77 @@ ffid.eval = @(x) eps;
 paramtv_classic = struct;
 paramtv_classic.verbose = verbose -1;
 ftvclassic = struct;
-ftvclassic.prox = @(x,T) reshape(prox_tv(reshape(x,sx,sy,size(x,2)),T,paramtv_classic),sx*sy,size(x,2));
+ftvclassic.prox = @(x,T) reshape(prox_tv(reshape(x+mX,sx,sy,size(x,2)),T,paramtv_classic),sx*sy,size(x,2))-mX;
 ftvclassic.eval = @(x) sum(norm_tv(reshape(x,sx,sy,size(x,2))));
 
 paramsolver = struct;
 paramsolver.verbose = verbose;
 paramsolver.gamma = 0.1;
 paramsolver.tol = 1e-10;
-paramsolver.maxit = 1000;
+paramsolver.maxit = maxit;
 sol_tv_classic = solvep(y,{ffid,ftvclassic},paramsolver);
 
 % Graph solution
 paramsolver = struct;
 paramsolver.verbose = verbose;
 paramsolver.tol = 1e-10;
-paramsolver.order = 100;
-paramsolver.maxit = 1000;
+paramsolver.order = 40;
+paramsolver.maxit = maxit;
 sol_tik = gsp_tik_inpainting_noise(G, y, Mask, sigma_u, paramsolver);
 
 
-sol_wiener = gsp_wiener_l2(G,y, A, At, psd, sigma_u.^2, paramsolver);
-norm(sol_tik - s,'fro')/norm(s,'fro')
-norm(sol_tv_classic - s,'fro')/norm(s,'fro')
+sol_wiener = gsp_wiener_inpainting(G,y,Mask,psd,sigma_u^2,paramsolver);
 
-norm(sol_wiener - s,'fro')/norm(s,'fro')
+snr(s,y1)
+snr(s,sol_tik)
+snr(s,sol_tv_classic)
+
+snr(s,sol_wiener)
 
 %%
 
-increase_v =0.06;
 y(~Mask) = min(y); 
 fig = figure();
+subplot = @(m,n,p) subtightplot (m, n, p, [0.01 0.01], [0.01 0.01], [0.01 0.01]);
 
-h = subplot(231);
-p = get(h, 'pos');
-p(3:4) = p(3:4) +increase_v;
-set(h,'pos',p);
+subplot(2,3,1);
 imagesc(reshape(s,sx,sy))
 colormap gray;
 axis off;
 axis equal
 % title('(a)');
-h = subplot(232);
-p = get(h, 'pos');
-p(3:4) = p(3:4) +increase_v;
-set(h,'pos',p);
+subplot(2,3,2);
 imagesc(reshape(y1,sx,sy))
 colormap gray;
 axis off;
 axis equal
 % title('(b)');
-h = subplot(233);
-p = get(h, 'pos');
-p(3:4) = p(3:4) +increase_v;
-set(h,'pos',p);
+subplot(2,3,3);
 imagesc(reshape(y,sx,sy))
 colormap gray;
 axis off;
 axis equal
 % title('(c)');
-h = subplot(234);
-p = get(h, 'pos');
-p(3:4) = p(3:4) +increase_v;
-set(h,'pos',p);
+subplot(2,3,4);
 imagesc(reshape(sol_tik,sx,sy))
 colormap gray;
 axis off;
 axis equal
 % title('(d)')
-h = subplot(235);
-p = get(h, 'pos');
-p(3:4) = p(3:4) +increase_v;
-set(h,'pos',p);
+subplot(2,3,5);
 imagesc(reshape(sol_tv_classic,sx,sy))
 colormap gray;
 axis off;
 axis equal
 % title('(e)')
-h = subplot(236);
-p = get(h, 'pos');
-p(3:4) = p(3:4) +increase_v;
-set(h,'pos',p);
+subplot(2,3,6);
 imagesc(reshape(sol_wiener,sx,sy))
 colormap gray;
 axis off;
 axis equal
 % title('(f)')
-tightfig(fig);
-
+% tightfig(fig);
+clear subplot
 paramplot.position = [100,100,600,440];
 gsp_plotfig('orl_single',paramplot)
 

@@ -86,18 +86,23 @@ X = [x, xx];
 Y = [y;yy];
 X = X(:,Y==nb );
 X = X(:,1:Ns);
+mX = mean(X,2);
+Xt = X-repmat(mX,1,size(X,2));
 
 %% Create the graph
 param.use_full = 1;
 param.k = 20;
-param.sigma = 0.2*size(X,2); 
-G = gsp_nn_graph(X,param);
+param.sigma = 0.2*size(Xt,2); 
 
+% param.k = 255;
+% param.sigma = 2; 
+G = gsp_nn_graph(Xt,param);
+% G= gsp_create_laplacian(G,'normalized');
 % Compute the Fourier Basis
 G = gsp_compute_fourier_basis(G);
 
 % Compute the covariance matrix
-covM = gsp_stationarity_cov(X);
+covM = gsp_stationarity_cov(Xt);
 
 % Compute the covariance matrix in the spectral domain
 covMF = G.U'*covM*G.U;
@@ -111,37 +116,38 @@ Ng = 25;
 w = randn(G.N,Ng);
 
 %gLambda = sqrt(abs(diag(covMF)));
-% gs = G.U*(repmat(gLambda,1,size(w,2)).*(G.U'*w));
+%gs = G.U*(repmat(gLambda,1,size(w,2)).*(G.U'*w));
 psd = gsp_experimental_psd(G,covM);
 gf = @(x) sqrt(abs(psd(x)));
-gs = gsp_filter_analysis(G,gf,w);
+gs = gsp_filter_analysis(G,gf,w)+repmat(mX,1,Ng);
 
 % Center and normalize the digits for the plotting
-gs = gs-repmat(mean(gs,2),1,Ng);
-gs = gs./repmat(std(gs,[],2),1,Ng);
+% gs = gs-repmat(mean(gs,2),1,Ng);
+% gs = gs./repmat(std(gs,[],2),1,Ng);
 
 
 
 %% Display the results
 paramplot.position = [100 100 450 300];
 figure()
-plot_some_images(U(:,1:16),nx,ny,4,4)
+rot = @(d) reshape(flipud(rot90(reshape(d,16,16,size(d,2)))),[],size(d,2));
+plot_some_images(rot(U(:,1:16)),nx,ny,4,4)
 title('Covariance eigenvector')
 gsp_plotfig('exp1_cov_eig',paramplot)
 
 figure()
-plot_some_images(G.U(:,2:17),nx,ny,4,4)
+plot_some_images(rot(G.U(:,2:17)),nx,ny,4,4)
 title('Graph eigenvectors')
 gsp_plotfig('exp1_lap_eig',paramplot)
 
 figure
-plot_some_images(gs,nx,ny,4,4)
+plot_some_images(rot(gs),nx,ny,4,4)
 title('Generated samples')
 gsp_plotfig('exp1_gen_sample',paramplot)
 
 figure()
 imagesc(10*log10(abs(covMF(1:100,1:100))+0.1))
-title('PSD matrix in dB');
+title('Spectral covariance matrix in dB');
 colorbar
 gsp_plotfig('exp1_PSD',paramplot)
 

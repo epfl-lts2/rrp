@@ -110,49 +110,62 @@ xbar = gsp_filter(G,wf,y);
 
 %% Plot a single experiment
 
-figure(1)
-subplot(221)
+fig1 = figure(1);
+paramplot.position = [100,100,600,220];
+subplot = @(m,n,p) subtightplot (m, n, p, [0.01 0.01], [0.01 0.1], [0.01 0.1]);
+subplot(1,3,1)
 gsp_plot_signal(G,x)
 title('Original signal');
 caxis([min(x) max(x)]);
+colorbar off
 
-subplot(222)
+subplot(1,3,2)
 gsp_plot_signal(G,y)
 caxis([min(x) max(x)]);
 title('Measurements');
+colorbar off
 
-subplot(223)
+hlast = subplot(1,3,3);
 gsp_plot_signal(G,xbar)
 caxis([min(x) max(x)]);
 title('Recovered signal');
+colorbar off;
+hp3 = get(hlast,'Position');
 
-subplot(224)
+colorbar('Position', [hp3(1)+hp3(3)+0.085 hp3(2)  0.2*hp3(3)  hp3(4)])
+% tightfig(fig1)
+gsp_plotfig('synthetic_deconvolution',paramplot);
+clear subplot
+%%
+figure(2)
+paramplot.position = [100,100,300,220];
 paramplotf.show_sum = 0;
 paramplotf.plot_eigenvalues = 0;
 wfdisp = @(x) wf(x)/5;
-gplot = {h,s,wfdisp};
+wy = @(x) h(x).*s(x)+0.04;
+gplot = {h,s,wfdisp,wy};
 gsp_plot_filter(G,gplot,paramplotf)
+xlabel('\lambda (graph spectral domain)')
 title('Differrent filters');
 legobj = legend('Convolution kernel',...
-       'PSD of input signal','Wiener (scalled)');
-set(legobj,'Position',[0.6667 0.3025 0.2550 0.1175]);
-gsp_plotfig('synthetic_deconvolution')
+       'PSD of input signal','Wiener (scalled)','PSD of the measurement');
+set(legobj,'Position',[0.3400 0.6136 0.6083 0.2614]);
+gsp_plotfig('synthetic_deconvolution_filters',paramplot)
 
 
 %% Error with respect of the noise
 
 sigma = 0.01:0.01:0.10;
 
-error_y = zeros(length(sigma),1);
-error_tik = zeros(length(sigma),1);
-error_tv = zeros(length(sigma),1);
-error_wiener = zeros(length(sigma),1);
+SNR_y = zeros(length(sigma),1);
+SNR_tik = zeros(length(sigma),1);
+SNR_tv = zeros(length(sigma),1);
+SNR_wiener = zeros(length(sigma),1);
 noise = randn(N,1);
 param.verbose = verbose;
 for ii = 1: length(sigma)
-    % Add noise the noise
+    % Add noise
     y = hx +sigma(ii)*noise;
-
     % Create the wiener filter
     wf = @(x) h(x).*s(x)./((h(x)).^ 2 .*s(x)+ sigma(ii)^2 + eps);
 
@@ -164,21 +177,21 @@ for ii = 1: length(sigma)
     sol_tv = gsp_tv_deconvolution_noise(G, y, h, sigma(ii), param);
 
     % Compute the error
-    error_y(ii) = norm(y-x)/norm(x);
-    error_tik(ii) = norm(sol_tik-x)/norm(x);
-    error_tv(ii) = norm(sol_tv-x)/norm(x);
-    error_wiener(ii) = norm(xbar-x)/norm(x);
+    SNR_y(ii) = snr(x,y);
+    SNR_tik(ii) = snr(x,sol_tik);
+    SNR_tv(ii) = snr(x,sol_tv);
+    SNR_wiener(ii) = snr(x,xbar);
 
 end
 
 %%
-figure(2)
+figure(3)
 paramplot.position = [100,100,300,220];
 noise_level = sigma*sqrt(N)/norm(x);
-plot(noise_level,error_tik,noise_level,error_tv,noise_level,error_wiener)
-xlabel('Noise level');
-ylabel('Relative error');
+plot(SNR_y,SNR_tik,SNR_y,SNR_tv,SNR_y,SNR_wiener,'LineWidth',2)
+xlabel('Input SNR (dB)');
+ylabel('Output SNR (dB)');
 axis tight;
-title('Deconvolution relative error')
-legend('Tikonov','TV','Wiener','Location','SouthEast');
+title('Deconvolution')
+legend('Tikhonov','TV','Wiener','Location','Best');
 gsp_plotfig('synthetic_deconvolution_errors',paramplot)

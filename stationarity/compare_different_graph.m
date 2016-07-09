@@ -35,7 +35,11 @@ data1 = X;
 data3 = X(:,Y == 3 );
 data7 = X(:,Y == 7 );
 data9 = X(:,Y == 9 );
-
+%% remove the mean
+data1 = data1 -repmat(mean(data1,2),1,size(data1,2));
+data3 = data3 -repmat(mean(data3,2),1,size(data3,2));
+data7 = data7 -repmat(mean(data7,2),1,size(data7,2));
+data9 = data9 -repmat(mean(data9,2),1,size(data9,2));
 
 
 %% Covariance matrices for the full data
