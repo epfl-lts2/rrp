@@ -59,12 +59,11 @@
 %
 %      A single inpainting experiment
 %
-%      Top left: Original image. Top center: Noisy image. Top right:
-%      Measurements $75 \% $ of the noisy image. Bottom left:
-%      Reconstruction using Tikonov prior (relative error $21.3\%$). Bottom
-%      center: Reconstruction using classic TV prior (relative error
-%      $19.7\%$). Bottom right: Reconstruction using Wiener optimization
-%      (relative error $18.2\%$).
+%      Top left: Original image. Top center: Noisy image (SNR $12.43$ dB).
+%      Top right: Measurements $50 \% $ of the noisy image. Bottom left:
+%      Reconstruction using Tikhonov prior (SNR $12.12$ dB). Bottom center:
+%      Reconstruction using classic TV prior (SNR $13.53$ dB). Bottom
+%      right: Reconstruction using Wiener optimization (SNR $14.42$ dB).
 %
 %
 %   References: perraudin2016stationary
@@ -105,12 +104,12 @@ XS = XS - repmat(mX,1,size(XS,2));
 % XS = XS - mean(x(:));
 %% Graph creation from the data X0
 param.use_flann = 1;
-param.k = 20;
-param.sigma = 2000;
-%G = gsp_nn_graph(XS,param);
+param.k = 10;
+%param.sigma = 500;
+G = gsp_nn_graph(XS,param);
 %G = gsp_2dgrid(112,92);
-parampatch.nnparam = param;
-G = gsp_patch_graph(reshape(XS,sx,sy,Ng),parampatch);
+%parampatch.nnparam = param;
+%G = gsp_patch_graph(reshape(XS,sx,sy,Ng),parampatch);
 % G = gsp_create_laplacian(G,'combinatorial');
 G = gsp_estimate_lmax(G);
 % G = gsp_adj2vec(G);
@@ -216,7 +215,7 @@ if perform_simulations
     msnr_tv_classic2 = mean(snr_tv_classic2,1);   
     msnr_y = mean(snr_y,1);   
 
-    save('data/ORL_experiment_nm.mat','msnr_tik','msnr_wiener','msnr_tv_classic','percent','psd',...
+    save('data/ORL_experiment_f.mat','msnr_tik','msnr_wiener','msnr_tv_classic','percent','psd',...
         'msnr_tik2','msnr_wiener2','msnr_tv_classic2','snr_y');
     
 else
@@ -239,16 +238,23 @@ plot(percent, msnr_tik2, ...
     percent, msnr_tv_classic2, ...
     percent, msnr_wiener2,...
     'LineWidth',2);
-ylabel('SNR (dB)');
+ylabel('Ouput SNR (dB)');
 xlabel('Percent of missing values');
 axis tight;
-title('SNR output')
-legend('Graph Tikhonov','Classic TV','Wiener optimization','Location','Best');
+title('ORL inpainting')
+legend('Graph Tikonov','Classic TV','Wiener optimization','Location','Best');
 gsp_plotfig('orl_inpainting_errors',paramplot)
 
 %% Perform a simple experiment
 
-s = X(:,5);
+if ~perform_simulations
+    %% Estimate the PSD
+    param.order = 100;
+    param.Nfilt = 200;
+    psd = gsp_psd_estimation(G,XS(:,1:Ns),param);
+end
+
+s = X(:,3);
 Mask = rand(G.N,1)>0.5;
 A  = @(x) bsxfun(@times, Mask, x);
 At = @(x) bsxfun(@times, Mask, x);
@@ -272,7 +278,7 @@ paramtv_classic = struct;
 paramtv_classic.verbose = verbose -1;
 ftvclassic = struct;
 ftvclassic.prox = @(x,T) reshape(prox_tv(reshape(x+mX,sx,sy,size(x,2)),T,paramtv_classic),sx*sy,size(x,2))-mX;
-ftvclassic.eval = @(x) sum(norm_tv(reshape(x,sx,sy,size(x,2))));
+ftvclassic.eval = @(x) sum(norm_tv(reshape(x+mX,sx,sy,size(x,2))));
 
 paramsolver = struct;
 paramsolver.verbose = verbose;
@@ -305,37 +311,37 @@ fig = figure();
 subplot = @(m,n,p) subtightplot (m, n, p, [0.01 0.01], [0.01 0.01], [0.01 0.01]);
 
 subplot(2,3,1);
-imagesc(reshape(s,sx,sy))
+imagesc(reshape(s+mX,sx,sy))
 colormap gray;
 axis off;
 axis equal
 % title('(a)');
 subplot(2,3,2);
-imagesc(reshape(y1,sx,sy))
+imagesc(reshape(y1+mX,sx,sy))
 colormap gray;
 axis off;
 axis equal
 % title('(b)');
 subplot(2,3,3);
-imagesc(reshape(y,sx,sy))
+imagesc(reshape(y+Mask.*mX,sx,sy))
 colormap gray;
 axis off;
 axis equal
 % title('(c)');
 subplot(2,3,4);
-imagesc(reshape(sol_tik,sx,sy))
+imagesc(reshape(sol_tik+mX,sx,sy))
 colormap gray;
 axis off;
 axis equal
 % title('(d)')
 subplot(2,3,5);
-imagesc(reshape(sol_tv_classic,sx,sy))
+imagesc(reshape(sol_tv_classic+mX,sx,sy))
 colormap gray;
 axis off;
 axis equal
 % title('(e)')
 subplot(2,3,6);
-imagesc(reshape(sol_wiener,sx,sy))
+imagesc(reshape(sol_wiener+mX,sx,sy))
 colormap gray;
 axis off;
 axis equal

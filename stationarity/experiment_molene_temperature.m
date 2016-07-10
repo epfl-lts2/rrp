@@ -101,7 +101,7 @@ global SAVE
 
 verbose = 0;
 gsp_reset_seed(0)
-do_experiment = 1;
+do_experiment = 0;
 %% Prepare the data
 x = info{4};
 y = info{3};
