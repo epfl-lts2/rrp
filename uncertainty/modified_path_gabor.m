@@ -61,7 +61,7 @@
 %   $f_2$. The global uncertainty bound from our Theorem tells us that
 %   $s_1(A_g f)\leq\max_{i,k}||T_i g_k||_2,\hbox{ for any signal }f.$
 %   The local uncertainty bound from our Theorem tells us that 
-%   $s_1(\A_\gg T_{i_0}g_{k_0})\leq||T_{\tilde{i}_{i_0,k_0}}g_{\tilde{k}_{i_0,k_0}}||_2,\hbox{ for all }i_0\hbox{ and }k_0.$
+%   $s_1(A_\gg T_{i_0}g_{k_0})\leq||T_{\tilde{i}_{i_0,k_0}}g_{\tilde{k}_{i_0,k_0}}||_2,\hbox{ for all }i_0\hbox{ and }k_0.$
 %   Thus, we can view the global uncertainty bound as an upper bound on all 
 %   of the local uncertainty bounds. In fact the bumps in the global 
 %   uncertainty bound in Figure~\ref{fig:bound Agf} correspond to the local 

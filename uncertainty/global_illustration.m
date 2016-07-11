@@ -42,7 +42,7 @@
 %   This experiment
 %   ---------------
 %
-%   Let us consider the two manifolds (surfaces) embedded in $\Rbb^3$ and
+%   Let us consider the two manifolds (surfaces) embedded in $\mathbb{R}^3$ and
 %   shown in Figures 1 and 2. The first one is a flat square. The second is
 %   identical except for the center where it contains a spike. We sample
 %   both of these manifolds uniformly across the $x$-$y$ plane and create a

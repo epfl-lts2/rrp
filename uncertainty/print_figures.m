@@ -2,7 +2,7 @@
 %
 %   This script print all the figures for the article ...
 
-% Author: Nathanaël Perraudin
+% Author: NathanaÃ«l Perraudin
 % Date  : 
 
 clear all; %#ok<CLALL>

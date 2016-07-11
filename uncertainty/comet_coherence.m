@@ -66,7 +66,7 @@
 %
 %      Coherence
 %
-%      Evolution of the graph Fourier coherence $\mu_{\G}$ with respect to
+%      Evolution of the graph Fourier coherence $\mu_{G}$ with respect to
 %      $k$.
 %   
 %   References: perraudin2016global
@@ -102,7 +102,7 @@ for ii = 1:length(Ne)
       mu(ii) = G.mu;
       
       if ii==5
-          figure(100)
+          figure()
           subplot(211)
           %gsp_plot_signal(G,max(abs(G.U),[],2));
           gsp_plot_graph(G);
@@ -110,7 +110,6 @@ for ii = 1:length(Ne)
           set(h,'interpreter','latex','FontSize',14);
       end
       if ii==11
-          figure(100)
           subplot(212)
           %gsp_plot_signal(G,max(abs(G.U),[],2));
           gsp_plot_graph(G);

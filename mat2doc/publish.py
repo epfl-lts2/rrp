@@ -221,13 +221,21 @@ if 'package' in todo:
 #  Send to the server
 
 
+# if 'sendphp' in todo:
+#     os.system('rm '+outputdirphp+'index.php')
+#     os.system('rm '+outputdirphp+'contentsmenu.php')
+#     os.system('rm '+outputdirphp+'lookup.php')
+#     s='rsync -av '+outputdirphp+' '+host+':'+www
+#     os.system(s)  
+#     s='rsync -av '+outputdirpackage+' '+host+':'+www+'archive/'
+#     os.system(s)  
 if 'sendphp' in todo:
     os.system('rm '+outputdirphp+'index.php')
     os.system('rm '+outputdirphp+'contentsmenu.php')
     os.system('rm '+outputdirphp+'lookup.php')
-    s='rsync -av '+outputdirphp+' '+host+':'+www
+    s='rsync -av '+outputdirphp+' '+outputdirweb
     os.system(s)  
-    s='rsync -av '+outputdirpackage+' '+host+':'+www+'archive/'
+    s='rsync -av '+outputdirpackage+' '+outputdirweb+'archive/'
     os.system(s)  
 
 

@@ -48,7 +48,7 @@
 %   different signals, we vary the value of the parameter $\tau$ in the
 %   heat kernel. We plot the four localized kernels in the graph spectral
 %   and vertex domains in the first two columns, respectively. The more we
-%   ``compress'' $\hat{h}$ in the graph spectral domain (i.e. we reduce its
+%   "compress" $\hat{h}$ in the graph spectral domain (i.e. we reduce its
 %   spectral spreading by increasing $\tau$), the less concentrated the
 %   localized atom becomes in the vertex domain. The joint vertex-frequency
 %   representation $|A_g T_1h_\tau(i,k)|$ of each signal is shown in the

@@ -118,7 +118,7 @@
 %   Let $\mu_{G}$ be the coherence between the graph Fourier and canonical
 %   bases of a graph $G$. Let $p,q>0$ be such that
 %   $\frac{1}{p}+\frac{1}{q}=1$. For any signal $f \in \mathbb{C}^N$
-%   defined on $\G$ and $1 \leq p \leq 2$, we have
+%   defined on $G$ and $1 \leq p \leq 2$, we have
 %   
 %   .. .|| \hat f ||_q \leq \mu_{G}^{1-\frac{2}{q}} || f ||_p, (2)
 %

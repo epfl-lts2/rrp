@@ -60,8 +60,8 @@
 %   Gaussian noise on the graph with a low pass kernel $\hat{h}$. The
 %   frequency content of the resulting signal will be close to the shape of
 %   the filter $\hat{h}$. For this example, we use the low pass kernel
-%   $\hat{h}(x) = \frac{1}{1+\frac{100}{\lmax} x}$ to generate the smooth
-%   signal.
+%   $\hat{h}(x) = \frac{1}{1+\frac{100}{\lambda_{\max}} x}$ to generate the
+%   smooth signal.
 %
 %   For a given number of measurements, the traditional idea is to randomly
 %   sample the graph. Under that strategy, the measurements are distributed

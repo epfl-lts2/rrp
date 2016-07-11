@@ -58,9 +58,9 @@
 %      Localization experiment 
 %
 %      The heat kernel is defined as $\hat{g}(ax) = e^{-\frac{10\cdot ax}{\lambda_{\max}}}$
-%      and the wavelet kernel $\hat{g}(ax)= \sqrt{40}\cdot ax \cdot e^{-\frac{40\cdot ax}{\lambda_{\max}}$. 
+%      and the wavelet kernel $\hat{g}(ax) = \sqrt{40} \cdot ax \cdot e^{- \frac{40 \cdot ax}{\lambda_{\max} }}$. 
 %      For a smooth kernel $\hat{g}$, the hop distance $h_{G}$ between $i$ 
-%      and $\tilde{i}=\argmax_j |T_ig(j)|$ is small.
+%      and $\tilde{i}=\arg\max_j |T_ig(j)|$ is small.
 %    
 %   
 %   References: perraudin2016global
