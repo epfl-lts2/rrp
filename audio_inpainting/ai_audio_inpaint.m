@@ -25,6 +25,8 @@ function [srec, G, transitions, info] = ai_audio_inpaint(shole, fs, hole_interva
 %   2. It searches for two optimal transitions.
 %   3. It reconstructs the signal using these two optimal transitions.
 %
+%   References: perraudin2016audio
+%
  
 % Authors: Nathanael Perraudin, Nicki Hollighaus
 % Date   : June 2016

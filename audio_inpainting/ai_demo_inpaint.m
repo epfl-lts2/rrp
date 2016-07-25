@@ -4,11 +4,21 @@
 %   the command prompt. Your inpainted file will be saved into the folder
 %   'results'.
 %
+%   In order to run this script you need to install the LTFAT and the
+%   GSPBox toolboxes. You can download them at:
+%
+%   * http://ltfat.github.io/
+%   * https://lts2.epfl.ch/gsp/
+%
+%   In order to gain execution speed, please consider using FLANN with the
+%   GSPBox.
+%
 %   This script is the implementation used in the following contribution:
-%   * Paper   :    Audio inpainting with similarity graphs
-%   * Authors :    Nathanael Perraudin, Nicki Holighaus, Piotr Majdak, 
-%                  Peter Balazs and Pierre Vandergheynst
-%   * Date    :    June 2016 
+%   * Paper   : Audio inpainting with similarity graphs
+%   * Authors : Nathanael Perraudin, Nicki Holighaus, Piotr Majdak, Peter Balazs 
+%   * Date    : June 2016 
+%   * ArXiv   : http://arxiv.org/abs/1607.06667
+%   * Online demo : https://lts2.epfl.ch/web-audio-inpainting/
 %
 %   Abstract
 %   --------
@@ -22,6 +32,7 @@
 %   selected through an optimization scheme and smoothly inserted into the
 %   gap.
 %
+%   References: perraudin2016audio
 %
 
 

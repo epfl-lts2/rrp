@@ -29,6 +29,8 @@ function [featuremat, param, patchmax] = ai_compute_features(s,fs,param)
 %
 %   This function requires the LTFAT toolbox to work.
 %
+%   References: perraudin2016audio
+%
  
  
 % Authors: Nicki Hollighaus, Nathanael Perraudin

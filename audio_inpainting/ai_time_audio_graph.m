@@ -51,6 +51,8 @@ function [G, Gfull,param, timing] = ai_time_audio_graph(s,fs,param)
 %   * *param.featuretype*  : type of features (default 0), see the function
 %     ai_compute_features for more details.
 %
+%   References: perraudin2016audio
+%
  
 % Authors: Nathanael Perraudin, Nicki Hollighaus
 % Date   : June 2016

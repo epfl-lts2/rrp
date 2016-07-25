@@ -12,6 +12,8 @@ function srec = ai_audio_inpaint_multiple_holes(shole, fs, hole_interval ,param)
 %  
 %   This function inpaint multiples holes in an audio signal.
 %
+%   References: perraudin2016audio
+%
 
 % Authors: Nathanael Perraudin, Nicki Hollighaus
 % Date   : June 2016
