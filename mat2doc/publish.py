@@ -35,6 +35,7 @@ import conf
 outputdir=conf.outputdir
 outputdirphp=outputdir+'/'+projectname+'-php/'
 outputdirmat=outputdir+'/'+projectname+'-mat/'
+outputdirhtml=outputdir+'/'+projectname+'-html/'
 outputdirtex=outputdir+'/'+projectname+'-tex/'
 outputdirpackage=outputdir+'/'+projectname+'-package/'
 
@@ -57,8 +58,8 @@ f.close()
 
 
 
-todo=sys.argv
 
+todo=sys.argv
 
 
 #  Optional parameters
@@ -113,6 +114,8 @@ for mode in  ['mat', 'php', 'html', 'tex']:
     if mode in todo:
         s = '%s %s/mat2doc.py %s%s %s %s' % ('PYTHONPATH="%s:$PYTHONPATH"' % (curdir,), mat2docpath, plot if mode != 'mat' else '', build if mode != 'mat' else '', project, mode,)
         os.system(s)
+if 'html' in todo:
+    os.system('./functions.py '+outputdirhtml)
 
 # if 'compiletex' in todo: 
         
@@ -215,20 +218,11 @@ if 'package' in todo:
             publishfunctions.unix2dos(outputdir+projectname+'-mat/'+el)
             os.system('cd '+projectname+'-mat/ '+'&& zip -r '+fname+'.zip '+el+'/')
 
+if 'copyarchive':
+    htmldirgit = homefolder+'/work/git/website/rrp-html/'
+    s='rsync -av '+outputdirpackage+' '+htmldirgit+'archive/'
+    os.system(s)  
 
- 
-
-#  Send to the server
-
-
-# if 'sendphp' in todo:
-#     os.system('rm '+outputdirphp+'index.php')
-#     os.system('rm '+outputdirphp+'contentsmenu.php')
-#     os.system('rm '+outputdirphp+'lookup.php')
-#     s='rsync -av '+outputdirphp+' '+host+':'+www
-#     os.system(s)  
-#     s='rsync -av '+outputdirpackage+' '+host+':'+www+'archive/'
-#     os.system(s)  
 if 'sendphp' in todo:
     os.system('rm '+outputdirphp+'index.php')
     os.system('rm '+outputdirphp+'contentsmenu.php')
@@ -244,7 +238,6 @@ if 'sendweb' in todo:
     os.system(s)  
 
 
-
-
-
-
+if 'copyhtml' in todo:
+    htmldirgit = homefolder+'/work/git/website/rrp-html/'
+    os.system('cp -r '+outputdirhtml+'* '+ htmldirgit)

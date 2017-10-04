@@ -1,3 +1,3 @@
 fext='.m'
-urlbase='https://lts2.epfl.ch/rrp'
-urlext='.php'
+urlbase='https://epfl-lts2.github.io/rrp-html'
+urlext='.html'
